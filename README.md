@@ -5,7 +5,8 @@ Executable integration proofs for the Tsonic Rust target.
 The suite mirrors the target-neutral behavior proven by
 `proof-is-in-the-pudding` and adds Rust-owned contracts that have no C#
 equivalent: ownership and borrowing, `Option`/`Result`, traits, Cargo project
-generation, and installed Rust capability packages.
+generation, safe typed-location aliasing, transitive Rust generic-contract
+reconstruction, and installed Rust capability packages.
 
 Every project is compiled from TypeScript to a fresh Rust/Cargo project, then
 checked with the native Rust toolchain. Binary proofs run and must satisfy

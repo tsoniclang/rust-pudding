@@ -44,6 +44,7 @@ export const projectSpecs = Object.freeze([
   project("native-fixed-arrays", "native/packages/fixed-arrays", "native", "rust_proof_native_fixed_arrays", "bin"),
   project("native-hello", "native/packages/hello", "native", "rust_proof_native_hello", "bin"),
   project("native-models", "native/packages/models", "native", "rust_proof_native_models", "bin"),
+  project("native-typed-locations", "native/packages/typed-locations", "native", "rust_proof_native_typed_locations", "bin"),
   project("node-async-fs", "nodejs/packages/async-fs", "nodejs", "rust_proof_node_async_fs", "lib", { surfaces: ["js"], needsNodeCapability: true }),
   project("node-crypto-buffer", "nodejs/packages/crypto-buffer", "nodejs", "rust_proof_node_crypto_buffer", "bin", { surfaces: ["js"], needsNodeCapability: true }),
   project("node-env-path", "nodejs/packages/env-path", "nodejs", "rust_proof_node_env_path", "bin", { surfaces: ["js"], needsNodeCapability: true }),
