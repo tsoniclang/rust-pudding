@@ -1,0 +1,11 @@
+{
+  "name": "rust-pudding-native",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "npm -ws --if-present run build"
+  }
+}
