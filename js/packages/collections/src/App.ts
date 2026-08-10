@@ -13,7 +13,8 @@ export function main(): void {
   }
 
   const text = "abcd";
-  if (text.slice(1, -1) !== "bc" || text.repeat(2) !== "abcdabcd" || text.codePointAt(0) !== 97) {
+  const point = text.codePointAt(0) ?? 0;
+  if (text.slice(1, -1) !== "bc" || text.repeat(2) !== "abcdabcd" || point !== 97) {
     throw new Error("string copy proof failed");
   }
 
