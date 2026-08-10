@@ -59,13 +59,16 @@ export async function executeProject(context, task, project) {
     "-D",
     "warnings",
   ], projectDirectory, commonEnvironment));
-  await runCommand(context, task, command(project, project.kind === "bin" ? "cargo-run" : "cargo-test", "cargo", [
+  const execution = await runCommand(context, task, command(project, project.kind === "bin" ? "cargo-run" : "cargo-test", "cargo", [
     project.kind === "bin" ? "run" : "test",
     "--manifest-path",
     manifest,
     "--locked",
     "--quiet",
   ], projectDirectory, commonEnvironment));
+  if (project.expectedStdout !== undefined) {
+    assert.equal(execution.stdout, project.expectedStdout, `${project.id} emitted unexpected standard output.`);
+  }
 }
 
 async function compile(context, task, project, projectDirectory, cli, environment, suffix = "initial") {

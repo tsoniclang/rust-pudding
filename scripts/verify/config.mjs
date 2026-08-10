@@ -38,7 +38,10 @@ export const projectSpecs = Object.freeze([
   project("js-callbacks", "js/packages/callbacks", "js", "rust_proof_js_callbacks", "bin", { surfaces: ["js"] }),
   project("js-collections", "js/packages/collections", "js", "rust_proof_js_collections", "bin", { surfaces: ["js"] }),
   project("js-fibonacci", "js/packages/fibonacci", "js", "rust_proof_js_fibonacci", "bin", { surfaces: ["js"] }),
-  project("js-hello", "js/packages/hello", "js", "rust_proof_js_hello", "bin", { surfaces: ["js"] }),
+  project("js-hello", "js/packages/hello", "js", "rust_proof_js_hello", "bin", {
+    surfaces: ["js"],
+    expectedStdout: "tsonic 6 true\n\n",
+  }),
   project("js-json-regexp-date", "js/packages/json-regexp-date", "js", "rust_proof_js_json_regexp_date", "bin", { surfaces: ["js"] }),
   project("native-async", "native/packages/async", "native", "rust_proof_native_async", "lib"),
   project("native-calculator", "native/packages/calculator", "native", "rust_proof_native_calculator", "bin"),
@@ -108,6 +111,7 @@ function project(id, path, workspacePath, crateName, kind, options = {}) {
       : Object.freeze(options.packageExports),
     surfaces: Object.freeze(options.surfaces ?? []),
     needsNodeCapability: options.needsNodeCapability === true,
+    expectedStdout: options.expectedStdout,
     memoryMiB: options.memoryMiB ?? 3_072,
     timeoutMinutes: options.timeoutMinutes ?? 10,
   });
