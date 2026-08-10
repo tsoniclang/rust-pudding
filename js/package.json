@@ -1,0 +1,7 @@
+{
+  "name": "rust-pudding-js",
+  "private": true,
+  "type": "module",
+  "workspaces": ["packages/*"],
+  "scripts": { "build": "npm -ws --if-present run build" }
+}

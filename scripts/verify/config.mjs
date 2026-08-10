@@ -15,6 +15,8 @@ export const localRepositories = Object.freeze({
 
 export const workspaceSpecs = Object.freeze([
   workspace("native", false),
+  workspace("js", false),
+  workspace("nodejs", true),
 ]);
 
 export const packageSpecs = Object.freeze([
@@ -30,7 +32,23 @@ export const packageSpecs = Object.freeze([
 ]);
 
 export const projectSpecs = Object.freeze([
+  project("js-calculator", "js/packages/calculator", "js", "rust_proof_js_calculator", "bin", { surfaces: ["js"] }),
+  project("js-callbacks", "js/packages/callbacks", "js", "rust_proof_js_callbacks", "bin", { surfaces: ["js"] }),
+  project("js-collections", "js/packages/collections", "js", "rust_proof_js_collections", "bin", { surfaces: ["js"] }),
+  project("js-fibonacci", "js/packages/fibonacci", "js", "rust_proof_js_fibonacci", "bin", { surfaces: ["js"] }),
+  project("js-hello", "js/packages/hello", "js", "rust_proof_js_hello", "bin", { surfaces: ["js"] }),
+  project("js-json-regexp-date", "js/packages/json-regexp-date", "js", "rust_proof_js_json_regexp_date", "bin", { surfaces: ["js"] }),
+  project("native-async", "native/packages/async", "native", "rust_proof_native_async", "lib"),
+  project("native-calculator", "native/packages/calculator", "native", "rust_proof_native_calculator", "bin"),
+  project("native-fibonacci", "native/packages/fibonacci", "native", "rust_proof_native_fibonacci", "bin"),
+  project("native-fixed-arrays", "native/packages/fixed-arrays", "native", "rust_proof_native_fixed_arrays", "bin"),
   project("native-hello", "native/packages/hello", "native", "rust_proof_native_hello", "bin"),
+  project("native-models", "native/packages/models", "native", "rust_proof_native_models", "bin"),
+  project("node-async-fs", "nodejs/packages/async-fs", "nodejs", "rust_proof_node_async_fs", "lib", { surfaces: ["js"], needsNodeCapability: true }),
+  project("node-crypto-buffer", "nodejs/packages/crypto-buffer", "nodejs", "rust_proof_node_crypto_buffer", "bin", { surfaces: ["js"], needsNodeCapability: true }),
+  project("node-env-path", "nodejs/packages/env-path", "nodejs", "rust_proof_node_env_path", "bin", { surfaces: ["js"], needsNodeCapability: true }),
+  project("node-file-system", "nodejs/packages/file-system", "nodejs", "rust_proof_node_file_system", "bin", { surfaces: ["js"], needsNodeCapability: true }),
+  project("node-url", "nodejs/packages/url", "nodejs", "rust_proof_node_url", "bin", { surfaces: ["js"], needsNodeCapability: true }),
 ]);
 
 export const workerLimit = positiveInteger(
