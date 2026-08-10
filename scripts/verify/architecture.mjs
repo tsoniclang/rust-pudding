@@ -33,7 +33,9 @@ export async function verifyArchitecture(root = repoRoot) {
     assert.equal(manifest.private, true);
     assert.equal(manifest.type, "module");
     assert.deepEqual(manifest.scripts, { build: "tsonic build --project tsonic.json" });
+    assert.deepEqual(manifest.dependencies ?? {}, project.packageDependencies);
     assert.deepEqual(manifest.devDependencies, expectedDevDependencies);
+    assert.deepEqual(manifest.exports, project.packageExports);
     assert.equal(config.targets?.length, 1);
     assert.equal(config.targets[0].id, "rust");
     assert.equal(config.targets[0].options?.crateName, project.crateName);

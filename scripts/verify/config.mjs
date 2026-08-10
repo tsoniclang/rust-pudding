@@ -17,6 +17,8 @@ export const workspaceSpecs = Object.freeze([
   workspace("native", false),
   workspace("js", false),
   workspace("nodejs", true),
+  workspace("workspaces/scoped-multi-project", false),
+  workspace("workspaces/unscoped-multi-project", false),
 ]);
 
 export const packageSpecs = Object.freeze([
@@ -51,6 +53,28 @@ export const projectSpecs = Object.freeze([
   project("node-env-path", "nodejs/packages/env-path", "nodejs", "rust_proof_node_env_path", "bin", { surfaces: ["js"], needsNodeCapability: true }),
   project("node-file-system", "nodejs/packages/file-system", "nodejs", "rust_proof_node_file_system", "bin", { surfaces: ["js"], needsNodeCapability: true }),
   project("node-url", "nodejs/packages/url", "nodejs", "rust_proof_node_url", "bin", { surfaces: ["js"], needsNodeCapability: true }),
+  project("workspace-scoped-domain", "workspaces/scoped-multi-project/packages/domain", "workspaces/scoped-multi-project", "rust_proof_workspace_scoped_domain", "lib", {
+    packageExports: {
+      ".": "./src/index.ts",
+      "./index.js": "./src/index.ts",
+      "./package.json": "./package.json",
+    },
+  }),
+  project("workspace-scoped-api", "workspaces/scoped-multi-project/packages/api", "workspaces/scoped-multi-project", "rust_proof_workspace_scoped_api", "bin", {
+    dependencies: ["workspace-scoped-domain"],
+    packageDependencies: { "@acme/domain": "*" },
+  }),
+  project("workspace-unscoped-domain", "workspaces/unscoped-multi-project/packages/acme-domain", "workspaces/unscoped-multi-project", "rust_proof_workspace_unscoped_domain", "lib", {
+    packageExports: {
+      ".": "./src/index.ts",
+      "./index.js": "./src/index.ts",
+      "./package.json": "./package.json",
+    },
+  }),
+  project("workspace-unscoped-api", "workspaces/unscoped-multi-project/packages/acme-api", "workspaces/unscoped-multi-project", "rust_proof_workspace_unscoped_api", "bin", {
+    dependencies: ["workspace-unscoped-domain"],
+    packageDependencies: { "acme-domain": "*" },
+  }),
 ]);
 
 export const workerLimit = positiveInteger(
@@ -78,6 +102,10 @@ function project(id, path, workspacePath, crateName, kind, options = {}) {
     crateName,
     kind,
     dependencies: Object.freeze(options.dependencies ?? []),
+    packageDependencies: Object.freeze(options.packageDependencies ?? {}),
+    packageExports: options.packageExports === undefined
+      ? undefined
+      : Object.freeze(options.packageExports),
     surfaces: Object.freeze(options.surfaces ?? []),
     needsNodeCapability: options.needsNodeCapability === true,
     memoryMiB: options.memoryMiB ?? 3_072,
