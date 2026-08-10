@@ -5,4 +5,7 @@ export function main(): void {
   if (Math.pow(2, 10) !== 1024 || Math.abs(-5) !== 5 || Math.trunc(-2.7) !== -2) {
     throw new Error("JavaScript Math result mismatch");
   }
+  if (!Number.isFinite(10) || !Number.isInteger(10) || !Number.isSafeInteger(10) || Number.isNaN(10)) {
+    throw new Error("JavaScript Number predicate mismatch");
+  }
 }
