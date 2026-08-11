@@ -1,0 +1,10 @@
+{
+  "$schema": "https://tsonic.org/schema/v1.json",
+  "entryPoint": "App.ts",
+  "rootDir": "src",
+  "outDir": "out",
+  "targets": [{
+    "id": "rust",
+    "options": { "crateName": "rust_proof_native_project_polymorphism", "edition": "2024", "outputType": "bin" }
+  }]
+}
