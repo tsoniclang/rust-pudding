@@ -27,12 +27,12 @@ function* exchange(seed: int32): Generator<int32, int32, int32> {
   return resumed + 1;
 }
 
-function* guarded(label: string): Generator<int32, string, int32> {
+function* guarded(cleanupDelta: int32): Generator<int32, string, int32> {
   try {
     yield 7;
     return "natural";
   } finally {
-    disposeCount += label.length;
+    disposeCount += cleanupDelta;
   }
 }
 
@@ -79,14 +79,14 @@ export async function main(): Promise<void> {
     throw new Error("generator delegation failed");
   }
 
-  const returnedGenerator = guarded("r");
+  const returnedGenerator = guarded(1);
   returnedGenerator.next();
   const returned = returnedGenerator.return("stopped");
   if (!returned.done || returned.value !== "stopped" || currentDisposeCount() !== 1) {
     throw new Error("generator return cleanup failed");
   }
 
-  const thrownGenerator = guarded("t");
+  const thrownGenerator = guarded(1);
   thrownGenerator.next();
   let generatorThrowObserved = false;
   try {

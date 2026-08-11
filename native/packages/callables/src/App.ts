@@ -2,6 +2,10 @@ import type { int32 } from "@tsonic/core/types.js";
 
 let argumentEvaluations: int32 = 0;
 
+function currentArgumentEvaluations(): int32 {
+  return argumentEvaluations;
+}
+
 function invoke(action: (value: int32) => int32, value: int32): int32 {
   return action(value);
 }
@@ -42,10 +46,10 @@ export function main(): void {
     throw new Error("escaping mutable closure capture failed");
   }
 
-  if (invokeOptional(null) !== null || argumentEvaluations !== 0) {
+  if (invokeOptional(null) !== null || currentArgumentEvaluations() !== 0) {
     throw new Error("optional callable evaluated an absent call");
   }
-  if (invokeOptional((value: int32): int32 => value + 1) !== 5 || argumentEvaluations !== 1) {
+  if (invokeOptional((value: int32): int32 => value + 1) !== 5 || currentArgumentEvaluations() !== 1) {
     throw new Error("optional callable invocation failed");
   }
 
