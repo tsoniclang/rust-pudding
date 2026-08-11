@@ -1,0 +1,54 @@
+import type { int32 } from "@tsonic/core/types.js";
+import { HashMap, HashSet } from "@tsonic/rust/std/collections.js";
+import { Vec } from "@tsonic/rust/std/vec.js";
+import {
+  Widget,
+  double,
+  duplicate,
+  featured,
+  identity,
+  maybe_positive,
+  singleton_map,
+} from "@tsonic/rust/crates/widget_alias/index.js";
+import { triple } from "@tsonic/rust/crates/widget_alias/math.js";
+
+function check(condition: boolean): void {
+  if (!condition) {
+    throw new Error("Rust compiler-provider proof failed");
+  }
+}
+
+export function main(): void {
+  const map = new HashMap<string, int32>();
+  map.insert("answer", 42);
+  check(!map.is_empty());
+  map.clear();
+  check(map.is_empty());
+
+  const set = new HashSet<int32>();
+  check(set.insert(7));
+  check(!set.is_empty());
+
+  const values = new Vec<int32>();
+  values.push(3);
+  check(values.pop() === 3);
+  check(values.is_empty());
+
+  const widget = new Widget<int32>(7);
+  check(widget.replace(9) === 7);
+  widget.count = 2;
+  check(widget.count === 2);
+  check(widget.into_value() === 9);
+
+  check(double(4) === 8);
+  check(identity<int32>(5) === 5);
+  check(featured(1) === 101);
+  check(triple(3) === 9);
+  check(maybe_positive(6) === 6);
+
+  const duplicated = duplicate(8);
+  check(duplicated.pop() === 8);
+  check(duplicated.pop() === 8);
+  check(duplicated.is_empty());
+  check(!singleton_map(10).is_empty());
+}

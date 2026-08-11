@@ -14,6 +14,14 @@ their own exact assertions. Generated source must be deterministic,
 `cargo fmt --check` clean, Clippy-clean, and free of fallback runtime
 reflection or dynamic dispatch.
 
+The native Cargo-provider proof uses a user-owned `Cargo.toml`, imports
+`HashMap`/`HashSet`/`Vec` through Rust standard-library virtual modules, and
+imports a renamed local Cargo dependency through
+`@tsonic/rust/crates/widget_alias/*.js`. It proves exact generic constructors,
+methods, mutable fields, free functions, nested modules, selected features,
+`Option`, `Vec`, and `HashMap` results through generated Rust and native Cargo
+execution. Tsonic must leave the user manifest byte-for-byte untouched.
+
 Run the complete bounded gate with:
 
 ```sh

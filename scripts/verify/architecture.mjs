@@ -41,7 +41,17 @@ export async function verifyArchitecture(root = repoRoot) {
     assert.equal(config.targets[0].options?.crateName, project.crateName);
     assert.equal(config.targets[0].options?.outputType, project.kind);
     assert.equal(config.targets[0].options?.edition, "2024");
+    assert.equal(
+      config.targets[0].options?.projectFile,
+      project.userOwnedCargo ? "Cargo.toml" : undefined,
+    );
     assert.deepEqual(config.targets[0].surfaces ?? [], project.surfaces);
+    if (project.userOwnedCargo) {
+      const cargoManifest = await readFile(resolve(directory, "Cargo.toml"), "utf8");
+      assert.match(cargoManifest, /\[dependencies\]/u);
+      assert.match(cargoManifest, /path = "out\/rust\/src\/lib\.rs"/u);
+      assert.match(cargoManifest, /path = "out\/rust\/src\/main\.rs"/u);
+    }
     assert.equal(source.includes("typescriptCompatibility"), false);
     assertSourceImports(project.path, source);
   }

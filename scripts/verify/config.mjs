@@ -45,6 +45,9 @@ export const projectSpecs = Object.freeze([
   project("js-json-regexp-date", "js/packages/json-regexp-date", "js", "rust_proof_js_json_regexp_date", "bin", { surfaces: ["js"] }),
   project("native-async", "native/packages/async", "native", "rust_proof_native_async", "lib"),
   project("native-calculator", "native/packages/calculator", "native", "rust_proof_native_calculator", "bin"),
+  project("native-cargo-provider", "native/packages/cargo-provider", "native", "rust_proof_native_cargo_provider", "bin", {
+    userOwnedCargo: true,
+  }),
   project("native-callables", "native/packages/callables", "native", "rust_proof_native_callables", "bin"),
   project("native-fibonacci", "native/packages/fibonacci", "native", "rust_proof_native_fibonacci", "bin"),
   project("native-fixed-arrays", "native/packages/fixed-arrays", "native", "rust_proof_native_fixed_arrays", "bin"),
@@ -116,6 +119,7 @@ function project(id, path, workspacePath, crateName, kind, options = {}) {
     surfaces: Object.freeze(options.surfaces ?? []),
     needsNodeCapability: options.needsNodeCapability === true,
     expectedStdout: options.expectedStdout,
+    userOwnedCargo: options.userOwnedCargo === true,
     memoryMiB: options.memoryMiB ?? 3_072,
     timeoutMinutes: options.timeoutMinutes ?? 10,
   });
