@@ -1,0 +1,11 @@
+{
+  "$schema": "https://tsonic.org/schema/v1.json",
+  "entryPoint": "App.ts",
+  "rootDir": "src",
+  "outDir": "out",
+  "targets": [{
+    "id": "rust",
+    "surfaces": ["js"],
+    "options": { "crateName": "rust_proof_node_assertions", "edition": "2024", "outputType": "bin" }
+  }]
+}
