@@ -2,6 +2,10 @@ import type { int32 } from "@tsonic/core/types.js";
 
 let disposeCount: int32 = 0;
 
+function currentDisposeCount(): int32 {
+  return disposeCount;
+}
+
 class Resource {
   constructor() {}
 
@@ -50,14 +54,14 @@ export async function main(): Promise<void> {
   {
     using resource = new Resource();
   }
-  if (disposeCount !== 1) {
+  if (currentDisposeCount() !== 1) {
     throw new Error("synchronous disposal failed");
   }
 
   {
     await using resource = new AsyncResource();
   }
-  if (disposeCount !== 2) {
+  if (currentDisposeCount() !== 2) {
     throw new Error("asynchronous disposal failed");
   }
 }
