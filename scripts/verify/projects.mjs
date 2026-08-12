@@ -5,7 +5,6 @@ import { relative, resolve } from "node:path";
 import { runCommand } from "./runner.mjs";
 
 const bannedGeneratedPatterns = [
-  /\bunsafe\b/u,
   /std::mem::transmute/u,
   /std::ptr::/u,
   /\bdyn\s+Any\b/u,
@@ -119,6 +118,7 @@ function command(project, suffix, executable, args, cwd, environment) {
 
 async function verifyGeneratedOutput(outputDirectory, project) {
   const files = await collectFiles(outputDirectory);
+  let generatedRust = "";
   assert.equal(
     files.includes("Cargo.toml"),
     !project.userOwnedCargo,
@@ -138,9 +138,18 @@ async function verifyGeneratedOutput(outputDirectory, project) {
     hash.update(content);
     if (file.endsWith(".rs")) {
       const text = content.toString("utf8");
+      generatedRust += `${text}\n`;
       for (const pattern of bannedGeneratedPatterns) {
         assert.doesNotMatch(text, pattern, `${project.id} emitted banned Rust mechanism ${pattern}.`);
       }
+    }
+  }
+  if (project.unsafeContract === undefined) {
+    assert.doesNotMatch(generatedRust, /\bunsafe\b/u, `${project.id} emitted Rust unsafe syntax without an explicit proof contract.`);
+  } else {
+    assert.match(generatedRust, /\bunsafe\s*\{/u, `${project.id} emitted no explicit lexical unsafe region.`);
+    if (project.unsafeContract === "lexical-and-declaration") {
+      assert.match(generatedRust, /\bunsafe\s+fn\b/u, `${project.id} emitted no explicit unsafe function declaration.`);
     }
   }
   return hash.digest("hex");

@@ -39,6 +39,20 @@ pub fn singleton_map(value: i32) -> HashMap<String, i32> {
     HashMap::from([(String::from("value"), value)])
 }
 
+pub unsafe fn dangerous(value: i32) -> i32 {
+    value
+}
+
+pub unsafe fn first_byte(pointer: *const u8) -> u8 {
+    unsafe { *pointer }
+}
+
+static BYTE: u8 = 23;
+
+pub fn byte_ptr() -> *const u8 {
+    &BYTE
+}
+
 #[cfg(feature = "extras")]
 pub fn featured(value: i32) -> i32 {
     value + 100

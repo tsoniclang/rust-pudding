@@ -1,11 +1,16 @@
 import type { int32 } from "@tsonic/core/types.js";
+import { unsafeContext } from "@tsonic/core/lang.js";
+import type { constPtr, u8 } from "@tsonic/rust/types.js";
 import { HashMap, HashSet } from "@tsonic/rust/std/collections.js";
 import { Vec } from "@tsonic/rust/std/vec.js";
 import {
   Widget,
+  byte_ptr,
+  dangerous,
   double,
   duplicate,
   featured,
+  first_byte,
   identity,
   maybe_positive,
   singleton_map,
@@ -16,6 +21,10 @@ function check(condition: boolean): void {
   if (!condition) {
     throw new Error("Rust compiler-provider proof failed");
   }
+}
+
+function readByte(pointer: constPtr<u8>): u8 {
+  return unsafeContext(first_byte(pointer));
 }
 
 export function main(): void {
@@ -45,6 +54,8 @@ export function main(): void {
   check(featured(1) === 101);
   check(triple(3) === 9);
   check(maybe_positive(6) === 6);
+  check(unsafeContext(dangerous(12)) === 12);
+  check(readByte(byte_ptr()) === 23);
 
   const duplicated = duplicate(8);
   check(duplicated.pop() === 8);
