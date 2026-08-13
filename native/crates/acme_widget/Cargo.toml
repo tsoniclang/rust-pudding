@@ -1,0 +1,11 @@
+[package]
+name = "acme-widget"
+version = "1.0.0"
+edition = "2024"
+
+[features]
+default = []
+extras = []
+
+[lib]
+path = "src/lib.rs"

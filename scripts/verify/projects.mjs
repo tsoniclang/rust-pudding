@@ -5,7 +5,6 @@ import { relative, resolve } from "node:path";
 import { runCommand } from "./runner.mjs";
 
 const bannedGeneratedPatterns = [
-  /\bunsafe\b/u,
   /std::mem::transmute/u,
   /std::ptr::/u,
   /\bdyn\s+Any\b/u,
@@ -13,6 +12,12 @@ const bannedGeneratedPatterns = [
 
 export async function executeProject(context, task, project) {
   const projectDirectory = resolve(context.stageRoot, project.path);
+  const userManifest = project.userOwnedCargo
+    ? resolve(projectDirectory, "Cargo.toml")
+    : undefined;
+  const userManifestText = userManifest === undefined
+    ? undefined
+    : await readFile(userManifest, "utf8");
   const cli = resolve(
     context.stageRoot,
     project.workspacePath,
@@ -25,13 +30,17 @@ export async function executeProject(context, task, project) {
     LC_ALL: "C.UTF-8",
   };
   await compile(context, task, project, projectDirectory, cli, commonEnvironment);
+  await verifyUserManifestUnchanged(userManifest, userManifestText, project.id);
   const outputDirectory = resolve(projectDirectory, "out/rust");
   const firstDigest = await verifyGeneratedOutput(outputDirectory, project);
   await compile(context, task, project, projectDirectory, cli, commonEnvironment, "repeat");
+  await verifyUserManifestUnchanged(userManifest, userManifestText, project.id);
   const secondDigest = await verifyGeneratedOutput(outputDirectory, project);
   assert.equal(secondDigest, firstDigest, `${project.id} output is nondeterministic.`);
 
-  const manifest = resolve(outputDirectory, "Cargo.toml");
+  const manifest = project.userOwnedCargo
+    ? resolve(projectDirectory, "Cargo.toml")
+    : resolve(outputDirectory, "Cargo.toml");
   await runCommand(context, task, command(project, "cargo-lock", "cargo", [
     "generate-lockfile",
     "--manifest-path",
@@ -71,6 +80,17 @@ export async function executeProject(context, task, project) {
   }
 }
 
+async function verifyUserManifestUnchanged(manifest, expected, projectId) {
+  if (manifest === undefined || expected === undefined) {
+    return;
+  }
+  assert.equal(
+    await readFile(manifest, "utf8"),
+    expected,
+    `${projectId} mutated its user-owned Cargo manifest.`,
+  );
+}
+
 async function compile(context, task, project, projectDirectory, cli, environment, suffix = "initial") {
   await runCommand(context, task, {
     id: `${project.id}-tsonic-${suffix}`,
@@ -98,11 +118,18 @@ function command(project, suffix, executable, args, cwd, environment) {
 
 async function verifyGeneratedOutput(outputDirectory, project) {
   const files = await collectFiles(outputDirectory);
-  assert.equal(files.includes("Cargo.toml"), true, `${project.id} emitted no Cargo manifest.`);
+  let generatedRust = "";
+  assert.equal(
+    files.includes("Cargo.toml"),
+    !project.userOwnedCargo,
+    `${project.id} emitted the wrong Cargo-manifest ownership shape.`,
+  );
   assert.equal(files.includes("src/lib.rs"), true, `${project.id} emitted no library root.`);
   assert.equal(files.includes("src/main.rs"), project.kind === "bin", `${project.id} emitted the wrong output kind.`);
-  const manifest = await readFile(resolve(outputDirectory, "Cargo.toml"), "utf8");
-  assert.match(manifest, new RegExp(`name = ${JSON.stringify(project.crateName)}`, "u"));
+  if (!project.userOwnedCargo) {
+    const manifest = await readFile(resolve(outputDirectory, "Cargo.toml"), "utf8");
+    assert.match(manifest, new RegExp(`name = ${JSON.stringify(project.crateName)}`, "u"));
+  }
   const hash = createHash("sha256");
   for (const file of files.filter((path) => path !== "Cargo.lock" && !path.startsWith("target/"))) {
     const content = await readFile(resolve(outputDirectory, file));
@@ -111,9 +138,18 @@ async function verifyGeneratedOutput(outputDirectory, project) {
     hash.update(content);
     if (file.endsWith(".rs")) {
       const text = content.toString("utf8");
+      generatedRust += `${text}\n`;
       for (const pattern of bannedGeneratedPatterns) {
         assert.doesNotMatch(text, pattern, `${project.id} emitted banned Rust mechanism ${pattern}.`);
       }
+    }
+  }
+  if (project.unsafeContract === undefined) {
+    assert.doesNotMatch(generatedRust, /\bunsafe\b/u, `${project.id} emitted Rust unsafe syntax without an explicit proof contract.`);
+  } else {
+    assert.match(generatedRust, /\bunsafe\s*\{/u, `${project.id} emitted no explicit lexical unsafe region.`);
+    if (project.unsafeContract === "lexical-and-declaration") {
+      assert.match(generatedRust, /\bunsafe\s+fn\b/u, `${project.id} emitted no explicit unsafe function declaration.`);
     }
   }
   return hash.digest("hex");

@@ -45,6 +45,10 @@ export const projectSpecs = Object.freeze([
   project("js-json-regexp-date", "js/packages/json-regexp-date", "js", "rust_proof_js_json_regexp_date", "bin", { surfaces: ["js"] }),
   project("native-async", "native/packages/async", "native", "rust_proof_native_async", "lib"),
   project("native-calculator", "native/packages/calculator", "native", "rust_proof_native_calculator", "bin"),
+  project("native-cargo-provider", "native/packages/cargo-provider", "native", "rust_proof_native_cargo_provider", "bin", {
+    userOwnedCargo: true,
+    unsafeContract: "lexical",
+  }),
   project("native-callables", "native/packages/callables", "native", "rust_proof_native_callables", "bin"),
   project("native-fibonacci", "native/packages/fibonacci", "native", "rust_proof_native_fibonacci", "bin"),
   project("native-fixed-arrays", "native/packages/fixed-arrays", "native", "rust_proof_native_fixed_arrays", "bin"),
@@ -52,6 +56,9 @@ export const projectSpecs = Object.freeze([
   project("native-hello", "native/packages/hello", "native", "rust_proof_native_hello", "bin"),
   project("native-models", "native/packages/models", "native", "rust_proof_native_models", "bin"),
   project("native-module-initialization", "native/packages/module-initialization", "native", "rust_proof_native_module_initialization", "bin"),
+  project("native-native-pointers", "native/packages/native-pointers", "native", "rust_proof_native_pointers", "lib", {
+    unsafeContract: "lexical-and-declaration",
+  }),
   project("native-project-polymorphism", "native/packages/project-polymorphism", "native", "rust_proof_native_project_polymorphism", "bin"),
   project("native-typed-locations", "native/packages/typed-locations", "native", "rust_proof_native_typed_locations", "bin"),
   project("node-assertions", "nodejs/packages/assertions", "nodejs", "rust_proof_node_assertions", "bin", { surfaces: ["js"], needsNodeCapability: true }),
@@ -116,6 +123,8 @@ function project(id, path, workspacePath, crateName, kind, options = {}) {
     surfaces: Object.freeze(options.surfaces ?? []),
     needsNodeCapability: options.needsNodeCapability === true,
     expectedStdout: options.expectedStdout,
+    userOwnedCargo: options.userOwnedCargo === true,
+    unsafeContract: options.unsafeContract,
     memoryMiB: options.memoryMiB ?? 3_072,
     timeoutMinutes: options.timeoutMinutes ?? 10,
   });

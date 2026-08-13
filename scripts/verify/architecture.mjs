@@ -41,8 +41,31 @@ export async function verifyArchitecture(root = repoRoot) {
     assert.equal(config.targets[0].options?.crateName, project.crateName);
     assert.equal(config.targets[0].options?.outputType, project.kind);
     assert.equal(config.targets[0].options?.edition, "2024");
+    assert.equal(
+      project.unsafeContract === undefined ||
+        project.unsafeContract === "lexical" ||
+        project.unsafeContract === "lexical-and-declaration",
+      true,
+      `${project.id} has an unsupported unsafe proof contract.`,
+    );
+    assert.equal(
+      config.targets[0].options?.projectFile,
+      project.userOwnedCargo ? "Cargo.toml" : undefined,
+    );
     assert.deepEqual(config.targets[0].surfaces ?? [], project.surfaces);
+    if (project.userOwnedCargo) {
+      const cargoManifest = await readFile(resolve(directory, "Cargo.toml"), "utf8");
+      assert.match(cargoManifest, /\[dependencies\]/u);
+      assert.match(cargoManifest, /path = "out\/rust\/src\/lib\.rs"/u);
+      assert.match(cargoManifest, /path = "out\/rust\/src\/main\.rs"/u);
+    }
     assert.equal(source.includes("typescriptCompatibility"), false);
+    if (project.unsafeContract !== undefined) {
+      assert.match(source, /\bunsafeContext\b/u, `${project.id} declares unsafe output without an explicit source context.`);
+    }
+    if (project.unsafeContract === "lexical-and-declaration") {
+      assert.match(source, /\.requiresUnsafe\(\)/u, `${project.id} does not declare its unsafe callable contract.`);
+    }
     assertSourceImports(project.path, source);
   }
   return { files: files.length, projects: projectSpecs.length, workspaces: workspaceSpecs.length };
