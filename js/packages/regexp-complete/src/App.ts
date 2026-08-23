@@ -1,3 +1,6 @@
+import { jsstr } from "@tsonic/js/lang.js";
+import type { JsString } from "@tsonic/js/types.js";
+
 function requireValue(condition: boolean, _message: string): void {
   if (!condition) {
     console.log();
@@ -32,7 +35,8 @@ export function main(): void {
   requireValue(expression.lastIndex === 4, "global lastIndex");
   requireValue(expression.exec("ab12") === null && expression.lastIndex === 0, "failed global reset");
 
-  requireValue(("😀".match(/./g)?.length ?? -1) === 2, "legacy UTF-16 code-unit matching");
+  const exactAstral: JsString = jsstr("😀");
+  requireValue((exactAstral.match(/./g)?.length ?? -1) === 2, "legacy UTF-16 code-unit matching");
   requireValue(("😀".match(/./gu)?.length ?? -1) === 1, "Unicode code-point matching");
 
   const all: string[] = [];
