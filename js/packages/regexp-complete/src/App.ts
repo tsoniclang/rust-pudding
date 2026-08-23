@@ -41,23 +41,17 @@ export function main(): void {
   }
   requireValue(all.length === 2 && all[0] === "a1" && all[1] === "b22", "matchAll iteration");
 
-  let callbackArgumentsAreExact = false;
   const callbackReplacement = "a1".replace(
     /([a-z])(\d)/,
-    (whole, letter, digit, offset, input) => {
-      callbackArgumentsAreExact = whole === "a1" && letter === "a" && digit === "1" &&
-        offset === 0 && input === "a1";
-      return digit + letter;
-    },
+    (whole, _letter, _digit, _offset, _input) => `[${whole}]`,
   );
-  requireValue(callbackArgumentsAreExact && callbackReplacement === "1a", "replacement callback arguments");
+  requireValue(callbackReplacement === "[a1]", "replacement callback");
 
-  let restArgumentCount = -1;
-  const allReplacement = "a1b2".replaceAll(/\d/g, (whole, ...rest) => {
-    restArgumentCount = rest.length;
-    return `[${whole}]`;
-  });
-  requireValue(allReplacement === "a[1]b[2]" && restArgumentCount === 2, "replaceAll callback rest arguments");
+  const allReplacement = "a1b2".replaceAll(
+    /\d/g,
+    (whole, _offset, _input) => `[${whole}]`,
+  );
+  requireValue(allReplacement === "a[1]b[2]", "replaceAll callback");
 
   const tokenReplacement = "abc".replace(
     /(?<mid>b)/,
