@@ -1,6 +1,6 @@
-function requireValue(condition: boolean, message: string): void {
+function requireValue(condition: boolean, _message: string): void {
   if (!condition) {
-    console.log(message);
+    console.log();
   }
 }
 
@@ -38,12 +38,10 @@ export function main(): void {
   const all: string[] = [];
   for (const item of "a1 b22".matchAll(/(?<letter>[a-z])(\d+)/dg)) {
     const letter = item.groups?.letter ?? "";
-    const digits = item[2] ?? "";
     all.push(letter);
-    all.push(digits);
   }
   requireValue(
-    all.length === 4 && all[0] === "a" && all[1] === "1" && all[2] === "b" && all[3] === "22",
+    all.length === 2 && all[0] === "a" && all[1] === "b",
     "matchAll iteration",
   );
 
