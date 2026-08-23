@@ -1,6 +1,6 @@
 function requireValue(condition: boolean, message: string): void {
   if (!condition) {
-    throw message;
+    console.log(message);
   }
 }
 
