@@ -1,6 +1,6 @@
 function requireValue(condition: boolean, message: string): void {
   if (!condition) {
-    console.log(`regexp-failure:${message}`);
+    throw message;
   }
 }
 
@@ -10,9 +10,9 @@ export function main(): void {
   const called = RegExp(original);
   called.lastIndex = 3;
   requireValue(original.lastIndex === 3, "RegExp call identity");
-  const constructed = new RegExp(original);
-  constructed.lastIndex = 1;
-  requireValue(original.lastIndex === 3 && constructed.lastIndex === 1, "RegExp construction identity");
+  const copy = new RegExp(original);
+  copy.lastIndex = 1;
+  requireValue(original.lastIndex === 3 && copy.lastIndex === 1, "RegExp construction identity");
   requireValue(new RegExp("", "ygimsd").flags === "dgimsy", "canonical flags");
 
   requireValue(new RegExp("a+?").exec("aaa")?.[0] === "a", "lazy quantifier");
@@ -37,9 +37,15 @@ export function main(): void {
 
   const all: string[] = [];
   for (const item of "a1 b22".matchAll(/(?<letter>[a-z])(\d+)/dg)) {
-    all.push((item.groups?.letter ?? "") + (item[2] ?? ""));
+    const letter = item.groups?.letter ?? "";
+    const digits = item[2] ?? "";
+    all.push(letter);
+    all.push(digits);
   }
-  requireValue(all.length === 2 && all[0] === "a1" && all[1] === "b22", "matchAll iteration");
+  requireValue(
+    all.length === 4 && all[0] === "a" && all[1] === "1" && all[2] === "b" && all[3] === "22",
+    "matchAll iteration",
+  );
 
   const callbackReplacement = "a1".replace(
     /([a-z])(\d)/,
