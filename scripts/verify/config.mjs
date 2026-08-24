@@ -24,6 +24,7 @@ export const workspaceSpecs = Object.freeze([
 export const packageSpecs = Object.freeze([
   packageSpec("tsts", localRepositories.tsonic, "packages/tsts"),
   packageSpec("source-core", localRepositories.tsonic, "packages/source-core"),
+  packageSpec("js-source-profile", localRepositories.tsonic, "packages/js-source-profile"),
   packageSpec("target-api", localRepositories.tsonic, "packages/target-api"),
   packageSpec("host", localRepositories.tsonic, "packages/host"),
   packageSpec("cli", localRepositories.tsonic, "packages/cli"),
@@ -43,6 +44,7 @@ export const projectSpecs = Object.freeze([
     expectedStdout: "tsonic 6 true\n\n",
   }),
   project("js-json-regexp-date", "js/packages/json-regexp-date", "js", "rust_proof_js_json_regexp_date", "bin", { surfaces: ["js"] }),
+  project("js-regexp-complete", "js/packages/regexp-complete", "js", "rust_proof_js_regexp_complete", "bin", { surfaces: ["js"] }),
   project("native-async", "native/packages/async", "native", "rust_proof_native_async", "lib"),
   project("native-calculator", "native/packages/calculator", "native", "rust_proof_native_calculator", "bin"),
   project("native-cargo-provider", "native/packages/cargo-provider", "native", "rust_proof_native_cargo_provider", "bin", {
