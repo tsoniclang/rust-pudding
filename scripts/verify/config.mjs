@@ -61,6 +61,7 @@ export const projectSpecs = Object.freeze([
   project("native-native-pointers", "native/packages/native-pointers", "native", "rust_proof_native_pointers", "lib", {
     unsafeContract: "lexical-and-declaration",
   }),
+  project("native-ownership-lifetimes", "native/packages/ownership-lifetimes", "native", "rust_proof_native_ownership_lifetimes", "bin"),
   project("native-project-polymorphism", "native/packages/project-polymorphism", "native", "rust_proof_native_project_polymorphism", "bin"),
   project("native-typed-locations", "native/packages/typed-locations", "native", "rust_proof_native_typed_locations", "bin"),
   project("node-assertions", "nodejs/packages/assertions", "nodejs", "rust_proof_node_assertions", "bin", { surfaces: ["js"], needsNodeCapability: true }),

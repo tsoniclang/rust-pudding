@@ -1,11 +1,13 @@
 import type { int32 } from "@tsonic/core/types.js";
 import { unsafeContext } from "@tsonic/core/lang.js";
-import type { constPtr, u8 } from "@tsonic/rust/types.js";
+import { captureMove, move, own, ref } from "@tsonic/rust/lang.js";
+import type { Owned, constPtr, u8 } from "@tsonic/rust/types.js";
 import { HashMap, HashSet } from "@tsonic/rust/std/collections.js";
 import { Vec } from "@tsonic/rust/std/vec.js";
 import {
   Widget,
   byte_ptr,
+  choose_borrowed,
   dangerous,
   double,
   duplicate,
@@ -13,6 +15,12 @@ import {
   first_byte,
   identity,
   maybe_positive,
+  preserve_borrowed,
+  require_fn,
+  require_fn_mut,
+  require_fn_once,
+  require_local_future,
+  require_send_static_future,
   singleton_map,
 } from "@tsonic/rust/crates/widget_alias/index.js";
 import { triple } from "@tsonic/rust/crates/widget_alias/math.js";
@@ -25,6 +33,12 @@ function check(condition: boolean): void {
 
 function readByte(pointer: constPtr<u8>): u8 {
   return unsafeContext(first_byte(pointer));
+}
+
+function consume(_value: Owned<string>): void {}
+
+async function completeLater(): Promise<void> {
+  await Promise.resolve();
 }
 
 export function main(): void {
@@ -51,6 +65,18 @@ export function main(): void {
 
   check(double(4) === 8);
   check(identity<int32>(5) === 5);
+  const first = "first";
+  const second = "second";
+  check(own(choose_borrowed(ref(first), ref(second))) === "first");
+  check(own(preserve_borrowed(ref(second))) === "second");
+  require_fn((): void => {});
+  let callbackCount = 0;
+  require_fn_mut((): void => { callbackCount += 1; });
+  check(callbackCount === 1);
+  let callbackValue = "callback";
+  require_fn_once(captureMove((): void => consume(move(callbackValue))));
+  require_local_future(completeLater());
+  require_send_static_future(completeLater());
   check(featured(1) === 101);
   check(triple(3) === 9);
   check(maybe_positive(6) === 6);
