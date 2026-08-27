@@ -71,7 +71,7 @@ function* borrowedValues<L extends Life>(
 async function preserveAcrossAwait<L extends Life>(
   value: Ref<int32, L>,
 ): Promise<Ref<int32, L>> {
-  await Promise.resolve();
+  await Promise.resolve(undefined);
   return value;
 }
 

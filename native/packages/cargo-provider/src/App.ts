@@ -33,7 +33,7 @@ function readByte(pointer: constPtr<u8>): u8 {
 }
 
 async function completeLater(): Promise<void> {
-  await Promise.resolve();
+  await Promise.resolve(undefined);
 }
 
 export function main(): void {
