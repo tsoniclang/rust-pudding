@@ -15,7 +15,7 @@ import type {
   ValidFor,
 } from "@tsonic/rust/types.js";
 
-type Shared<L extends Life> = Ref<int32, L>;
+export type Shared<L extends Life> = Ref<int32, L>;
 type Reader = <L extends Life>(value: Ref<int32, L>) => int32;
 
 function increment(value: Mut<int32>): void {
