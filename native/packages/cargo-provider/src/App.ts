@@ -6,6 +6,7 @@ import { Vec } from "@tsonic/rust/std/vec.js";
 import {
   Widget,
   byte_ptr,
+  choose_borrowed,
   dangerous,
   double,
   duplicate,
@@ -13,6 +14,9 @@ import {
   first_byte,
   identity,
   maybe_positive,
+  preserve_borrowed,
+  require_local_future,
+  require_send_static_future,
   singleton_map,
 } from "@tsonic/rust/crates/widget_alias/index.js";
 import { triple } from "@tsonic/rust/crates/widget_alias/math.js";
@@ -26,6 +30,8 @@ function check(condition: boolean): void {
 function readByte(pointer: constPtr<u8>): u8 {
   return unsafeContext(first_byte(pointer));
 }
+
+async function completeLater(): Promise<void> {}
 
 export function main(): void {
   const map = new HashMap<string, int32>();
@@ -51,6 +57,12 @@ export function main(): void {
 
   check(double(4) === 8);
   check(identity<int32>(5) === 5);
+  const first: int32 = 6;
+  const second: int32 = 7;
+  check(choose_borrowed(first, second) === 6);
+  check(preserve_borrowed(second) === 7);
+  require_local_future(completeLater());
+  require_send_static_future(completeLater());
   check(featured(1) === 101);
   check(triple(3) === 9);
   check(maybe_positive(6) === 6);
