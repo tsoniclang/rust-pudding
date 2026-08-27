@@ -1,4 +1,5 @@
 use std::collections::HashMap;
+use std::future::Future;
 
 pub struct Widget<T> {
     pub count: i32,
@@ -25,6 +26,25 @@ pub fn double(value: i32) -> i32 {
 
 pub fn identity<T>(value: T) -> T {
     value
+}
+
+pub fn choose_borrowed<'a, 'b: 'a, T: ?Sized>(left: &'a T, _right: &'b T) -> &'a T {
+    left
+}
+
+pub fn preserve_borrowed<'a, T: ?Sized + 'a>(value: &'a T) -> &'a T {
+    value
+}
+
+pub fn require_local_future<F: Future<Output = ()>>(future: F) {
+    drop(future);
+}
+
+pub fn require_send_static_future<F>(future: F)
+where
+    F: Future<Output = ()> + Send + 'static,
+{
+    drop(future);
 }
 
 pub fn maybe_positive(value: i32) -> Option<i32> {
