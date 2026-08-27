@@ -71,9 +71,11 @@ function* borrowedValues<L extends Life>(
 async function preserveAcrossAwait<L extends Life>(
   value: Ref<int32, L>,
 ): Promise<Ref<int32, L>> {
-  await Promise.resolve(undefined);
+  await suspend();
   return value;
 }
+
+async function suspend(): Promise<void> {}
 
 export async function main(): Promise<void> {
   let first: int32 = 40;
