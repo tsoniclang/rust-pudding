@@ -23,14 +23,6 @@ export function copyAndAdvance(
 
 safety(copyAndAdvance).requiresUnsafe();
 
-export function invokeCopyAndAdvance(
-  source: NativePointer<int32>,
-  destination: NativePointer<int32>,
-  elementOffset: nativeInt,
-): NativePointer<int32> {
-  return unsafeContext(copyAndAdvance(source, destination, elementOffset));
-}
-
 export function declaredUnsafe(value: int32): int32 {
   return value;
 }
