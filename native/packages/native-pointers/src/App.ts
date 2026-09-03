@@ -21,6 +21,8 @@ export function copyAndAdvance(
   return offsetNativePointer(source, elementOffset);
 }
 
+safety(copyAndAdvance).requiresUnsafe();
+
 export function declaredUnsafe(value: int32): int32 {
   return value;
 }
