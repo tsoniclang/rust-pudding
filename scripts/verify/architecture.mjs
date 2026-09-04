@@ -26,9 +26,9 @@ export async function verifyArchitecture(root = repoRoot) {
     const config = await readJson(resolve(directory, "tsonic.json"));
     const source = await readProjectSource(directory);
     const expectedDevDependencies = {
-      "@tsonic/cli": "0.0.1",
-      "@tsonic/target-rust": "0.0.1",
-      ...(project.needsNodeCapability ? { "@tsonic/rust-nodejs": "0.0.1" } : {}),
+      "@tsonic/cli": "0.1.0",
+      "@tsonic/target-rust": "0.1.0",
+      ...(project.needsNodeCapability ? { "@tsonic/rust-nodejs": "0.1.0" } : {}),
     };
     assert.equal(manifest.private, true);
     assert.equal(manifest.type, "module");
