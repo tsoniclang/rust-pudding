@@ -63,7 +63,10 @@ export const projectSpecs = Object.freeze([
   }),
   project("native-lifetimes", "native/packages/lifetimes", "native", "rust_proof_native_lifetimes", "bin"),
   project("native-project-polymorphism", "native/packages/project-polymorphism", "native", "rust_proof_native_project_polymorphism", "bin"),
-  project("native-typed-locations", "native/packages/typed-locations", "native", "rust_proof_native_typed_locations", "bin"),
+  project("native-typed-locations", "native/packages/typed-locations", "native", "rust_proof_native_typed_locations", "bin", {
+    unsafeContract: "lexical",
+    capabilityDependencies: { "@proof/rust-memory-abi": "file:../memory-abi" },
+  }),
   project("node-assertions", "nodejs/packages/assertions", "nodejs", "rust_proof_node_assertions", "bin", { surfaces: ["js"], needsNodeCapability: true }),
   project("node-async-fs", "nodejs/packages/async-fs", "nodejs", "rust_proof_node_async_fs", "lib", { surfaces: ["js"], needsNodeCapability: true }),
   project("node-crypto-buffer", "nodejs/packages/crypto-buffer", "nodejs", "rust_proof_node_crypto_buffer", "bin", { surfaces: ["js"], needsNodeCapability: true }),
@@ -120,6 +123,7 @@ function project(id, path, workspacePath, crateName, kind, options = {}) {
     kind,
     dependencies: Object.freeze(options.dependencies ?? []),
     packageDependencies: Object.freeze(options.packageDependencies ?? {}),
+    capabilityDependencies: Object.freeze(options.capabilityDependencies ?? {}),
     packageExports: options.packageExports === undefined
       ? undefined
       : Object.freeze(options.packageExports),
