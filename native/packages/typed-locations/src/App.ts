@@ -6,6 +6,8 @@ import {
 } from "@tsonic/core/lang.js";
 import type { int32, Pointer } from "@tsonic/core/types.js";
 import { forwardValue } from "./forward.js";
+import { verifyPointerViews } from "./pointer-views.js";
+import { verifyNativeMemory } from "./native-memory.js";
 
 class Pair {
   left: int32;
@@ -22,6 +24,8 @@ function increment(pointer: Pointer<int32>): void {
 }
 
 export function main(): void {
+  if (!verifyPointerViews()) throw new Error("pointer view contract failed");
+  if (!verifyNativeMemory()) throw new Error("native memory contract failed");
   let value: int32 = 1;
   const alias = addressOf(value);
   value += 1;
