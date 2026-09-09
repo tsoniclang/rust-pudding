@@ -2,16 +2,16 @@
 
 Executable integration proofs for the Tsonic Rust target.
 
-The suite mirrors the target-neutral behavior proven by
-`proof-is-in-the-pudding` and adds Rust-owned contracts that have no C#
-equivalent: ownership and borrowing, `Option`/`Result`, traits, Cargo project
-generation, safe typed-location aliasing, transitive Rust generic-contract
-reconstruction, and installed Rust capability packages.
+The suite records bounded assertions shared with `pudding-csharp`, plus
+Rust-owned and currently unpaired contracts. It exercises ownership and
+borrowing, `Option`/`Result`, traits, Cargo project generation, safe
+typed-location aliasing, transitive Rust generic-contract reconstruction,
+and installed Rust capability packages.
 
-Unsafe output remains forbidden by default. The dedicated native-pointer and
-Cargo-provider proofs opt into an exact unsafe-output contract and prove both
-lexical `unsafe` regions and independently declared `unsafe fn` boundaries;
-all other projects must remain free of unsafe syntax.
+Unsafe output remains forbidden by default. The native-pointer library checks
+lexical `unsafe` regions and independently declared `unsafe fn` boundaries at
+compile time. The Cargo-provider and typed-location projects permit lexical
+unsafe regions. All other projects must remain free of unsafe syntax.
 
 Every project is compiled from TypeScript to a fresh Rust/Cargo project, then
 checked with the native Rust toolchain. Binary proofs run and must satisfy
@@ -35,3 +35,14 @@ Run the complete bounded gate with:
 
 Filtered or direct project runs are development aids only; they are not the
 acceptance gate.
+
+Each complete run writes `.tests/verify-*/scenarios.json`, separating runtime
+assertions from compile-only checks. Inspect the declared pairs without
+running projects:
+
+```sh
+node scripts/verify-all.mjs --scenarios --peer ../pudding-csharp
+```
+
+See [proof alignment](https://github.com/tsoniclang/tsonic/blob/main/docs/architecture/target-pack-contract.md#proof-alignment)
+for the evidence contract. Inventory inspection is not execution certification.

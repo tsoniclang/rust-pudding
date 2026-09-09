@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { readFile, readdir } from "node:fs/promises";
 import { relative, resolve } from "node:path";
 import { projectSpecs, repoRoot, workspaceSpecs } from "./config.mjs";
+import { loadScenarios } from "./scenarios.mjs";
 
 const ignored = new Set([".git", ".temp", ".tests", "node_modules", "out", "target"]);
 
@@ -69,7 +70,7 @@ export async function verifyArchitecture(root = repoRoot) {
     }
     assertSourceImports(project.path, source);
   }
-  return { files: files.length, projects: projectSpecs.length, workspaces: workspaceSpecs.length };
+  return { files: files.length, projects: projectSpecs.length, workspaces: workspaceSpecs.length, scenarios: await loadScenarios(root, configs) };
 }
 
 async function collectFiles(root) {
