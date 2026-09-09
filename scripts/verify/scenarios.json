@@ -1,0 +1,776 @@
+{
+  "schemaVersion": 1,
+  "suite": "rust",
+  "scenarios": [
+    {
+      "id": "arithmetic/add-10-3",
+      "classification": "paired",
+      "contract": "Adding 10 and 3 returns 13.",
+      "proofs": [
+        {
+          "project": "native-calculator",
+          "level": "runtime",
+          "sources": ["native/packages/calculator/src/App.ts"],
+          "assertions": [
+            {"file":"native/packages/calculator/src/App.ts","contains":"if (add(10, 3) !== 13) {\n    throw new Error(\"addition failed\");"}
+          ],
+          "outcome": "main throws if add(10,3) differs from 13."
+        }
+      ]
+    },
+    {
+      "id": "arithmetic/division-and-zero-exception",
+      "classification": "unpaired",
+      "contract": "Division 10/2 returns 5 and division by zero throws an exception.",
+      "reason": "C# divides 10/3 and prints an error on zero without throwing.",
+      "proofs": [
+        {
+          "project": "native-calculator",
+          "level": "runtime",
+          "sources": ["native/packages/calculator/src/App.ts"],
+          "assertions": [
+            {"file":"native/packages/calculator/src/App.ts","contains":"if (divide(10, 2) !== 5) {"},
+            {"file":"native/packages/calculator/src/App.ts","contains":"if (!rejected) {\n    throw new Error(\"division by zero was accepted\");"}
+          ],
+          "outcome": "main rejects a wrong quotient or missing exception; exception text/type are not asserted."
+        }
+      ]
+    },
+    {
+      "id": "fibonacci/recursive-0-through-5",
+      "classification": "paired",
+      "contract": "Recursive Fibonacci at inputs 0 through 5 returns 0, 1, 1, 2, 3, 5.",
+      "proofs": [
+        {
+          "project": "native-fibonacci",
+          "level": "runtime",
+          "sources": ["native/packages/fibonacci/src/App.ts"],
+          "assertions": [
+            {"file":"native/packages/fibonacci/src/App.ts","contains":"fibonacci(0) !== 0 ||"},
+            {"file":"native/packages/fibonacci/src/App.ts","contains":"fibonacci(5) !== 5"},
+            {"file":"native/packages/fibonacci/src/App.ts","contains":"throw new Error(\"fibonacci result mismatch\");"}
+          ],
+          "outcome": "main throws on a wrong recursive result in 0..5."
+        },
+        {
+          "project": "js-fibonacci",
+          "level": "runtime",
+          "sources": ["js/packages/fibonacci/src/App.ts"],
+          "assertions": [
+            {"file":"js/packages/fibonacci/src/App.ts","contains":"fibonacci(0) !== 0 ||"},
+            {"file":"js/packages/fibonacci/src/App.ts","contains":"fibonacci(5) !== 5"},
+            {"file":"js/packages/fibonacci/src/App.ts","contains":"throw new Error(\"JavaScript callback Fibonacci proof failed\");"}
+          ],
+          "outcome": "main throws on a wrong recursive result in 0..5."
+        }
+      ]
+    },
+    {
+      "id": "fibonacci/recursive-6",
+      "classification": "unpaired",
+      "contract": "Recursive Fibonacci at input 6 returns 8.",
+      "reason": "This is also inside the larger C# 6..10/iterative-40 lane, but no same-sized extended contract is paired. It is an explicitly unmatched inventory row, not missing C# behavior.",
+      "proofs": [
+        {
+          "project": "native-fibonacci",
+          "level": "runtime",
+          "sources": ["native/packages/fibonacci/src/App.ts"],
+          "assertions": [
+            {"file":"native/packages/fibonacci/src/App.ts","contains":"fibonacci(6) !== 8"},
+            {"file":"native/packages/fibonacci/src/App.ts","contains":"throw new Error(\"fibonacci result mismatch\");"}
+          ],
+          "outcome": "main checks fibonacci(6) === 8."
+        }
+      ]
+    },
+    {
+      "id": "generators/send-delegate-and-finally",
+      "classification": "paired",
+      "contract": "Generator next inputs determine yielded/returned values; yield-star forwards the inner result; return and throw execute finally cleanup.",
+      "proofs": [
+        {
+          "project": "native-generators-resources",
+          "level": "runtime",
+          "sources": ["native/packages/generators-resources/src/App.ts"],
+          "assertions": [
+            {"file":"native/packages/generators-resources/src/App.ts","contains":"throw new Error(\"generator next value failed\");"},
+            {"file":"native/packages/generators-resources/src/App.ts","contains":"throw new Error(\"generator delegation failed\");"},
+            {"file":"native/packages/generators-resources/src/App.ts","contains":"throw new Error(\"generator return cleanup failed\");"},
+            {"file":"native/packages/generators-resources/src/App.ts","contains":"throw new Error(\"generator throw cleanup failed\");"}
+          ],
+          "outcome": "exchange sends 41 and returns 42; delegated next values 3,7 then 9; return stopped and throw each increment cleanup once."
+        }
+      ]
+    },
+    {
+      "id": "generators/completion-and-throw-observation",
+      "classification": "unpaired",
+      "contract": "Generator next/return completion flags and propagated throw are checked in addition to values and cleanup.",
+      "reason": "C# generator stdout checks values and cleanup, not completion flags or whether its empty catch was entered.",
+      "proofs": [
+        {
+          "project": "native-generators-resources",
+          "level": "runtime",
+          "sources": ["native/packages/generators-resources/src/App.ts"],
+          "assertions": [
+            {"file":"native/packages/generators-resources/src/App.ts","contains":"if (!completed.done || completed.value !== 42) {"},
+            {"file":"native/packages/generators-resources/src/App.ts","contains":"if (!returned.done || returned.value !== \"stopped\" || currentDisposeCount() !== 1) {"},
+            {"file":"native/packages/generators-resources/src/App.ts","contains":"if (!generatorThrowObserved || currentDisposeCount() !== 2) {"}
+          ],
+          "outcome": "first/delegated items must not be done; terminal/return items must be done; generatorThrowObserved must become true."
+        }
+      ]
+    },
+    {
+      "id": "generators/async-next-and-iteration",
+      "classification": "paired",
+      "contract": "Queued async-generator next inputs retain request order and for-await consumes the yielded values.",
+      "proofs": [
+        {
+          "project": "native-generators-resources",
+          "level": "runtime",
+          "sources": ["native/packages/generators-resources/src/App.ts"],
+          "assertions": [
+            {"file":"native/packages/generators-resources/src/App.ts","contains":"throw new Error(\"async generator request ordering failed\");"},
+            {"file":"native/packages/generators-resources/src/App.ts","contains":"if (total !== 5) {\n    throw new Error(\"async iteration failed\");"}
+          ],
+          "outcome": "Three queued requests yield 2,7,3 then done 12; for-await sums 2 and 3 to 5; completion flags are also checked."
+        }
+      ]
+    },
+    {
+      "id": "resources/sync-and-async-disposal",
+      "classification": "paired",
+      "contract": "Leaving using and await-using scopes invokes the respective disposal method.",
+      "proofs": [
+        {
+          "project": "native-generators-resources",
+          "level": "runtime",
+          "sources": ["native/packages/generators-resources/src/App.ts"],
+          "assertions": [
+            {"file":"native/packages/generators-resources/src/App.ts","contains":"if (currentDisposeCount() !== 3) {\n    throw new Error(\"synchronous disposal failed\");"},
+            {"file":"native/packages/generators-resources/src/App.ts","contains":"if (currentDisposeCount() !== 4) {\n    throw new Error(\"asynchronous disposal failed\");"}
+          ],
+          "outcome": "After two generator cleanups, using increments disposal count to 3 and await using to 4."
+        }
+      ]
+    },
+    {
+      "id": "memory/typed-pointer-views",
+      "classification": "paired",
+      "contract": "Bound/projected pointers preserve identity and hash, defer callbacks, handle absent views and share writes across numeric and boolean projections.",
+      "proofs": [
+        {
+          "project": "native-typed-locations",
+          "level": "runtime",
+          "sources": ["native/packages/typed-locations/src/App.ts","native/packages/typed-locations/src/pointer-views.ts"],
+          "assertions": [
+            {"file":"native/packages/typed-locations/src/App.ts","contains":"if (!verifyPointerViews()) throw new Error(\"pointer view contract failed\");"},
+            {"file":"native/packages/typed-locations/src/pointer-views.ts","contains":"if (!same(value, 9) || !same(reads, 1) || !same(writes, 1) || loadPointer(alias) !== 9) return false;"},
+            {"file":"native/packages/typed-locations/src/pointer-views.ts","contains":"if (!same(value, 0) || loadPointer(flag)) return false;"}
+          ],
+          "outcome": "The reached boolean verifier rejects eager callbacks, identity/hash drift or incorrect writes."
+        }
+      ]
+    },
+    {
+      "id": "memory/native-roundtrips-and-retention",
+      "classification": "paired",
+      "contract": "An explicit little-endian 64-bit ABI preserves typed/raw pointer identity, alias writes, byte views, retained owners, optional returns and parameter value isolation.",
+      "proofs": [
+        {
+          "project": "native-typed-locations",
+          "level": "runtime",
+          "sources": ["native/packages/typed-locations/src/App.ts","native/packages/typed-locations/src/native-memory.ts","native/packages/memory-abi/index.mjs"],
+          "assertions": [
+            {"file":"native/packages/typed-locations/src/App.ts","contains":"if (!verifyNativeMemory()) throw new Error(\"native memory contract failed\");"},
+            {"file":"native/packages/typed-locations/src/native-memory.ts","contains":"if (!equalPointer(original, restored) || hashPointer(original) !== hashPointer(restored)) return false;"},
+            {"file":"native/packages/typed-locations/src/native-memory.ts","contains":"if (incoming !== 71 || loadPointer(parameter) !== 73) return false;"},
+            {"file":"native/packages/typed-locations/src/native-memory.ts","contains":"if (!equalRawPointer(nil, undefined) || reinterpretRawPointer(nil, word) !== undefined) return false;"}
+          ],
+          "outcome": "Reached verifier checks writes 9/17/33, retained allocation and field/array replacements, parameter 71/73, optional returns and null raw pointers."
+        }
+      ]
+    },
+    {
+      "id": "memory/native-storage-aliasing",
+      "classification": "paired",
+      "contract": "Array-element and field pointers retain their original aliased backing after owner rebinding; explicit stride and raw roundtrips preserve writes.",
+      "proofs": [
+        {
+          "project": "native-typed-locations",
+          "level": "runtime",
+          "sources": ["native/packages/typed-locations/src/App.ts","native/packages/typed-locations/src/native-memory.ts","native/packages/typed-locations/src/native-storage.ts"],
+          "assertions": [
+            {"file":"native/packages/typed-locations/src/App.ts","contains":"if (!verifyNativeMemory()) throw new Error(\"native memory contract failed\");"},
+            {"file":"native/packages/typed-locations/src/native-memory.ts","contains":"if (!callableReturns() || !verifyNativeStorage()) return false;"},
+            {"file":"native/packages/typed-locations/src/native-storage.ts","contains":"if (neighbor === undefined || loadPointer(neighbor) !== 8) throw new Error(\"array stride\");"},
+            {"file":"native/packages/typed-locations/src/native-storage.ts","contains":"return loadPointer(element) === 21 && loadPointer(field) === 22;"}
+          ],
+          "outcome": "Stride 8 selects neighbor 8; retained element/field writes end at 21 and 22."
+        }
+      ]
+    },
+    {
+      "id": "memory/allocated-pointer-write-40-to-41",
+      "classification": "paired",
+      "contract": "Writing through a pointer allocated with 40 makes a subsequent load return 41.",
+      "proofs": [
+        {
+          "project": "native-typed-locations",
+          "level": "runtime",
+          "sources": ["native/packages/typed-locations/src/App.ts","native/packages/typed-locations/src/forward.ts","native/packages/typed-locations/src/storage.ts"],
+          "assertions": [
+            {"file":"native/packages/typed-locations/src/App.ts","contains":"const allocated = forwardValue<int32>(40);"},
+            {"file":"native/packages/typed-locations/src/App.ts","contains":"if (loadPointer(allocated) !== 41) {\n    throw new Error(\"transitive location contract failed\");"}
+          ],
+          "outcome": "A generically forwarded allocation of 40 is incremented and loaded as 41."
+        }
+      ]
+    },
+    {
+      "id": "memory/local-class-field-and-transitive-locations",
+      "classification": "unpaired",
+      "contract": "Local and class-field address aliases observe mutations, and generic pointer allocation survives forwarding through two modules.",
+      "reason": "C# uses a value-struct field and local create helper, not this two-module generic forwarding chain.",
+      "proofs": [
+        {
+          "project": "native-typed-locations",
+          "level": "runtime",
+          "sources": ["native/packages/typed-locations/src/App.ts","native/packages/typed-locations/src/forward.ts","native/packages/typed-locations/src/storage.ts"],
+          "assertions": [
+            {"file":"native/packages/typed-locations/src/App.ts","contains":"if (value !== 3 || loadPointer(alias) !== 3) {"},
+            {"file":"native/packages/typed-locations/src/App.ts","contains":"if (pair.left !== 6 || loadPointer(firstAgain) !== 6 || !equalPointer(first, firstAgain)) {"},
+            {"file":"native/packages/typed-locations/src/forward.ts","contains":"return allocateValue(value);"},
+            {"file":"native/packages/typed-locations/src/App.ts","contains":"throw new Error(\"transitive location contract failed\");"}
+          ],
+          "outcome": "Local value/load both 3; field/load both 6 with equal pointers; forwardValue -> allocateValue returns allocation incremented to 41."
+        }
+      ]
+    },
+    {
+      "id": "async/nested-return-library",
+      "classification": "unpaired",
+      "contract": "Compile nested async exports increment and answer, where answer awaits increment(41).",
+      "reason": "Not comparable to executable C# Promise.all/timer or async-generator assertions.",
+      "proofs": [
+        {
+          "project": "native-async",
+          "level": "compile-only",
+          "sources": ["native/packages/async/src/App.ts"],
+          "assertions": [
+            {"file":"native/packages/async/src/App.ts","contains":"return await increment(41);"}
+          ],
+          "outcome": "Native toolchain checks the library; no source function is invoked by an authored test.",
+          "gap": "Library output, no main or native tests. cargo test does not assert answer resolves to 42."
+        }
+      ]
+    },
+    {
+      "id": "rust/cargo-provider-imports-and-contracts",
+      "classification": "native-only",
+      "contract": "A user-owned Cargo project imports std collections and a renamed feature-selected dependency with generic, borrowed, optional, nested and unsafe native APIs.",
+      "reason": "Cargo rename/feature resolution, native std collection and borrowed/unsafe provider identities are Rust contracts. Future-bound calls drop futures; they do not poll them.",
+      "proofs": [
+        {
+          "project": "native-cargo-provider",
+          "level": "runtime",
+          "sources": ["native/packages/cargo-provider/src/App.ts","native/crates/acme_widget/src/lib.rs"],
+          "assertions": [
+            {"file":"native/packages/cargo-provider/src/App.ts","contains":"throw new Error(\"Rust compiler-provider proof failed\");"},
+            {"file":"native/packages/cargo-provider/src/App.ts","contains":"check(widget.replace(9) === 7);"},
+            {"file":"native/packages/cargo-provider/src/App.ts","contains":"check(featured(1) === 101);"},
+            {"file":"native/packages/cargo-provider/src/App.ts","contains":"check(readByte(byte_ptr()) === 23);"},
+            {"file":"scripts/verify/projects.mjs","contains":"`${projectId} mutated its user-owned Cargo manifest.`,"}
+          ],
+          "outcome": "check throws for wrong collection/Widget/generic/feature/Option/Vec results, borrowed 6/7, unsafe identity 12 or byte 23; user Cargo.toml is byte-for-byte unchanged."
+        }
+      ]
+    },
+    {
+      "id": "callables/capture-optional-rest-recursion",
+      "classification": "unpaired",
+      "contract": "Callable invocation preserves escaping mutable capture, skips absent optional-call arguments, counts present arguments once and supports named recursion/rest parameters.",
+      "reason": "C# Pudding callbacks exist in other contexts but these exact call/side-effect assertions are not mapped.",
+      "proofs": [
+        {
+          "project": "native-callables",
+          "level": "runtime",
+          "sources": ["native/packages/callables/src/App.ts"],
+          "assertions": [
+            {"file":"native/packages/callables/src/App.ts","contains":"throw new Error(\"escaping mutable closure capture failed\");"},
+            {"file":"native/packages/callables/src/App.ts","contains":"throw new Error(\"optional callable evaluated an absent call\");"},
+            {"file":"native/packages/callables/src/App.ts","contains":"throw new Error(\"optional callable invocation failed\");"},
+            {"file":"native/packages/callables/src/App.ts","contains":"throw new Error(\"recursive or rest callable contract failed\");"}
+          ],
+          "outcome": "invoke returns 5, captured counter 4/5, absent argument count 0 and present 1, factorial 120 and rest total 10."
+        }
+      ]
+    },
+    {
+      "id": "arrays/mutable-slice-and-fixed-tuple",
+      "classification": "unpaired",
+      "contract": "Passing an array to bump mutates its first element to 2; a fixed three-element tuple sums to 60.",
+      "reason": "C# Span/Memory demo is a different native API and mutation/copy contract.",
+      "proofs": [
+        {
+          "project": "native-fixed-arrays",
+          "level": "runtime",
+          "sources": ["native/packages/fixed-arrays/src/App.ts"],
+          "assertions": [
+            {"file":"native/packages/fixed-arrays/src/App.ts","contains":"if (values[0] !== 2 || fixed[0] + fixed[1] + fixed[2] !== 60) {"}
+          ],
+          "outcome": "main throws unless values[0] is 2 and 10+20+30 is 60."
+        }
+      ]
+    },
+    {
+      "id": "arithmetic/int32-answer",
+      "classification": "unpaired",
+      "contract": "An int32 expression 40 + 2 equals 42.",
+      "reason": "C# hello projects enforce text/pointer results, not this named arithmetic assertion.",
+      "proofs": [
+        {
+          "project": "native-hello",
+          "level": "runtime",
+          "sources": ["native/packages/hello/src/App.ts"],
+          "assertions": [
+            {"file":"native/packages/hello/src/App.ts","contains":"if (actual !== expected) {\n    throw new Error(\"native hello proof failed\");"},
+            {"file":"native/packages/hello/src/App.ts","contains":"requireExact(answer, 42);"}
+          ],
+          "outcome": "requireExact(answer,42) throws on a wrong result."
+        }
+      ]
+    },
+    {
+      "id": "rust/named-elided-and-retained-lifetimes",
+      "classification": "native-only",
+      "contract": "Rust Ref/Mut, named Outlives/ValidFor and higher-ranked callbacks retain references through generator yield and await.",
+      "reason": "Explicit Rust lifetime controls, not a missing C# named-lifetime feature.",
+      "proofs": [
+        {
+          "project": "native-lifetimes",
+          "level": "runtime",
+          "sources": ["native/packages/lifetimes/src/App.ts"],
+          "assertions": [
+            {"file":"native/packages/lifetimes/src/App.ts","contains":"throw new Error(\"named outlives relation failed\");"},
+            {"file":"native/packages/lifetimes/src/App.ts","contains":"throw new Error(\"type outlives relation failed\");"},
+            {"file":"native/packages/lifetimes/src/App.ts","contains":"throw new Error(\"higher-ranked callback lifetime failed\");"},
+            {"file":"native/packages/lifetimes/src/App.ts","contains":"throw new Error(\"generator lifetime retention failed\");"},
+            {"file":"native/packages/lifetimes/src/App.ts","contains":"throw new Error(\"async lifetime retention failed\");"}
+          ],
+          "outcome": "Elided/named reference reads 41, type-outlives read 50, higher-ranked read 9, generator 50 and preserved async reference 41."
+        }
+      ]
+    },
+    {
+      "id": "rust/uncalled-lifetime-signatures",
+      "classification": "native-only",
+      "contract": "The lifetime input also declares nested, Static and Placeholder reference signatures.",
+      "reason": "Rust-specific signature coverage must not inherit runtime proof from the other functions in main.",
+      "proofs": [
+        {
+          "project": "native-lifetimes",
+          "level": "compile-only",
+          "sources": ["native/packages/lifetimes/src/App.ts"],
+          "assertions": [
+            {"file":"native/packages/lifetimes/src/App.ts","contains":"function permanent(value: Ref<int32, Static>): Ref<int32, Static> {"},
+            {"file":"native/packages/lifetimes/src/App.ts","contains":"value: Ref<int32, Placeholder>,"},
+            {"file":"native/packages/lifetimes/src/App.ts","contains":"value: Ref<Mut<int32, B>, A>,"}
+          ],
+          "outcome": "These declarations are compiler inputs in an otherwise executable proof.",
+          "gap": "nested, permanent and inferred have no callers; no runtime assertion exercises these signatures."
+        }
+      ]
+    },
+    {
+      "id": "models/records-class-generic-and-null",
+      "classification": "unpaired",
+      "contract": "Records, tuples, literal unions, mutable classes, generic identity and null-coalescing return their expected values.",
+      "reason": "These portable assertions are not paired to similarly named C# projects or implied by their server models.",
+      "proofs": [
+        {
+          "project": "native-models",
+          "level": "runtime",
+          "sources": ["native/packages/models/src/App.ts"],
+          "assertions": [
+            {"file":"native/packages/models/src/App.ts","contains":"throw new Error(\"record, tuple, or enum proof failed\");"},
+            {"file":"native/packages/models/src/App.ts","contains":"throw new Error(\"class proof failed\");"},
+            {"file":"native/packages/models/src/App.ts","contains":"throw new Error(\"generic or option proof failed\");"}
+          ],
+          "outcome": "Point sum and tuple element 7, mode on, counter 15, generic 41+1=42, null -> 0 and value 5."
+        }
+      ]
+    },
+    {
+      "id": "modules/initialization-and-binding-location",
+      "classification": "unpaired",
+      "contract": "Dependency module initialization precedes top-level reads and a pointer to a module binding retains identity after mutation.",
+      "reason": "No mapped C# assertion combines this dependency initialization and module binding identity.",
+      "proofs": [
+        {
+          "project": "native-module-initialization",
+          "level": "runtime",
+          "sources": ["native/packages/module-initialization/src/App.ts","native/packages/module-initialization/src/state.ts"],
+          "assertions": [
+            {"file":"native/packages/module-initialization/src/App.ts","contains":"if (first !== 3 || loadPointer(secondLocation) !== 4) {"},
+            {"file":"native/packages/module-initialization/src/App.ts","contains":"if (second !== 8) {\n    throw new Error(\"module binding location identity failed\");"}
+          ],
+          "outcome": "Imported next initializes first to 3, second location reads 4, pointer write updates second to 8."
+        }
+      ]
+    },
+    {
+      "id": "rust/unsafe-pointer-library-output",
+      "classification": "native-only",
+      "contract": "Native pointer copy/advance and separately declared unsafe functions emit lexical unsafe regions and unsafe fn declarations.",
+      "reason": "Independent Rust unsafe callable and lexical declarations; C# pointer harness proves different executed behavior.",
+      "proofs": [
+        {
+          "project": "native-native-pointers",
+          "level": "compile-only",
+          "sources": ["native/packages/native-pointers/src/App.ts"],
+          "assertions": [
+            {"file":"native/packages/native-pointers/src/App.ts","contains":"safety(copyAndAdvance).requiresUnsafe();"},
+            {"file":"native/packages/native-pointers/src/App.ts","contains":"safety(declaredUnsafe).requiresUnsafe();"},
+            {"file":"scripts/verify/projects.mjs","contains":"`${project.id} emitted no explicit unsafe function declaration.`"}
+          ],
+          "outcome": "Generated Rust unsafe contracts, deterministic output, format/check/clippy and cargo test are checked, but no function is called.",
+          "gap": "Library has no authored native tests/main; pointer load/store/offset and invokeDeclaredUnsafe values are not runtime proof."
+        }
+      ]
+    },
+    {
+      "id": "objects/inheritance-identity-and-initialization",
+      "classification": "unpaired",
+      "contract": "Class/interface upcasts preserve identity and virtual/super dispatch, construction order, inherited generic constructors and authored-name collision safety.",
+      "reason": "Portable language behavior with no matching C# Pudding assertion set, not a native-only language feature.",
+      "proofs": [
+        {
+          "project": "native-project-polymorphism",
+          "level": "runtime",
+          "sources": ["native/packages/project-polymorphism/src/App.ts"],
+          "assertions": [
+            {"file":"native/packages/project-polymorphism/src/App.ts","contains":"throw new Error(\"project object identity was not preserved\");"},
+            {"file":"native/packages/project-polymorphism/src/App.ts","contains":"throw new Error(\"project construction order failed\");"},
+            {"file":"native/packages/project-polymorphism/src/App.ts","contains":"throw new Error(\"inherited generic constructor instantiation failed\");"},
+            {"file":"native/packages/project-polymorphism/src/App.ts","contains":"throw new Error(\"generated project names collided with authored declarations\");"}
+          ],
+          "outcome": "Leaf aliases stay identical; describe chain, base/middle initialization sequence, default/explicit counts and collision markers are exact."
+        }
+      ]
+    },
+    {
+      "id": "js/math-and-number-predicates",
+      "classification": "unpaired",
+      "contract": "JS Math floor/ceil/sqrt/pow/abs/trunc and Number finite/integer/safe-integer/NaN predicates return exact results.",
+      "reason": "C# JS calculator uses arithmetic operators, not Math or Number predicate APIs.",
+      "proofs": [
+        {
+          "project": "js-calculator",
+          "level": "runtime",
+          "sources": ["js/packages/calculator/src/App.ts"],
+          "assertions": [
+            {"file":"js/packages/calculator/src/App.ts","contains":"if (Math.floor(2.7) !== 2 || Math.ceil(2.1) !== 3 || Math.sqrt(81) !== 9) {"},
+            {"file":"js/packages/calculator/src/App.ts","contains":"if (!Number.isFinite(10) || !Number.isInteger(10) || !Number.isSafeInteger(10) || Number.isNaN(10)) {"}
+          ],
+          "outcome": "2/3/9,1024/5/-2; 10 is finite/integer/safe and not NaN."
+        }
+      ]
+    },
+    {
+      "id": "js/array-callback-results",
+      "classification": "unpaired",
+      "contract": "Array map/filter/reduce/some/every callbacks compute expected doubled, filtered and predicate results.",
+      "reason": "C# todo/notes arrays use other operations and do not enforce this callback set.",
+      "proofs": [
+        {
+          "project": "js-callbacks",
+          "level": "runtime",
+          "sources": ["js/packages/callbacks/src/App.ts"],
+          "assertions": [
+            {"file":"js/packages/callbacks/src/App.ts","contains":"throw new Error(\"reduce proof failed\");"},
+            {"file":"js/packages/callbacks/src/App.ts","contains":"throw new Error(\"callback proof failed\");"}
+          ],
+          "outcome": "Doubled reduction is 12, evens length 3, some >2 and every >0."
+        }
+      ]
+    },
+    {
+      "id": "js/array-string-map-set-results",
+      "classification": "unpaired",
+      "contract": "JS array traversal/copy/search, string copy/repeat/codePointAt and Map/Set overwrite/deduplication retain their expected results.",
+      "reason": "No mapped C# assertion for this operation/outcome set.",
+      "proofs": [
+        {
+          "project": "js-collections",
+          "level": "runtime",
+          "sources": ["js/packages/collections/src/App.ts"],
+          "assertions": [
+            {"file":"js/packages/collections/src/App.ts","contains":"throw new Error(\"array copy proof failed\");"},
+            {"file":"js/packages/collections/src/App.ts","contains":"throw new Error(\"string copy proof failed\");"},
+            {"file":"js/packages/collections/src/App.ts","contains":"throw new Error(\"map proof failed\");"},
+            {"file":"js/packages/collections/src/App.ts","contains":"throw new Error(\"set proof failed\");"}
+          ],
+          "outcome": "Array sum 6 and slice 2-3; string bc/abcdabcd/97; map 1 -> uno at size 1; set 7 at size 1."
+        }
+      ]
+    },
+    {
+      "id": "js/console-arguments-and-string-checks",
+      "classification": "unpaired",
+      "contract": "JS console logging preserves mixed argument formatting and an empty info call; string length/uppercase/includes are checked.",
+      "reason": "C# JS hello only emits a different greeting.",
+      "proofs": [
+        {
+          "project": "js-hello",
+          "level": "runtime",
+          "sources": ["js/packages/hello/src/App.ts"],
+          "assertions": [
+            {"file":"scripts/verify/config.mjs","contains":"expectedStdout: \"tsonic 6 true\\n\\n\","},
+            {"file":"js/packages/hello/src/App.ts","contains":"throw new Error(\"JavaScript string surface failed\");"}
+          ],
+          "outcome": "Exact stdout tsonic 6 true followed by two newlines; name length 6, uppercase TSONIC and includes son."
+        }
+      ]
+    },
+    {
+      "id": "js/json-regexp-date-results",
+      "classification": "unpaired",
+      "contract": "JSON parse/stringify, a digit RegExp test and epoch-millisecond Date access satisfy their combined result check.",
+      "reason": "C# HTTP JSON/timestamp probes and regex battery do not assert this same parse/date outcome.",
+      "proofs": [
+        {
+          "project": "js-json-regexp-date",
+          "level": "runtime",
+          "sources": ["js/packages/json-regexp-date/src/App.ts"],
+          "assertions": [
+            {"file":"js/packages/json-regexp-date/src/App.ts","contains":"passed = rendered.includes(\"tsonic\") && digits.test(\"a12\") && date.getTime() === 86400000;"},
+            {"file":"js/packages/json-regexp-date/src/App.ts","contains":"throw new Error(\"JSON, RegExp, or Date proof failed\");"}
+          ],
+          "outcome": "Rendered JSON contains tsonic, digit regex matches a12, Date.getTime is 86400000; malformed cases are not tested."
+        }
+      ]
+    },
+    {
+      "id": "js/regexp/state-patterns-and-string-operations",
+      "classification": "paired",
+      "contract": "Validate RegExp identity/flags, pattern and Unicode matching, captures/indices, lastIndex, replacement tokens, split captures, search restoration and escaping.",
+      "proofs": [
+        {
+          "project": "js-regexp-complete",
+          "level": "runtime",
+          "sources": ["js/packages/regexp-complete/src/App.ts"],
+          "assertions": [
+            {"file":"js/packages/regexp-complete/src/App.ts","contains":"if (!condition) {\n    console.log();\n  }"},
+            {"file":"js/packages/regexp-complete/src/App.ts","contains":"requireValue(original.lastIndex === 3, \"RegExp call identity\");"},
+            {"file":"js/packages/regexp-complete/src/App.ts","contains":"requireValue(searchExpression.lastIndex === 2, \"search state restoration\");"},
+            {"file":"scripts/verify/config.mjs","contains":"expectedStdout: \"\","}
+          ],
+          "outcome": "Every failed requireValue emits a newline; the runner requires exactly empty stdout, enforcing the common condition families without changing source expectations."
+        }
+      ]
+    },
+    {
+      "id": "js/regexp/callback-results-and-matchall-letters",
+      "classification": "unpaired",
+      "contract": "The regex input computes callback replacements and iterates matchAll named letters.",
+      "reason": "C# enforces different callback arguments/rest arity and matchAll numeric captures; only the separate common condition family is paired.",
+      "proofs": [
+        {
+          "project": "js-regexp-complete",
+          "level": "runtime",
+          "sources": ["js/packages/regexp-complete/src/App.ts"],
+          "assertions": [
+            {"file":"js/packages/regexp-complete/src/App.ts","contains":"requireValue(callbackReplacement === \"[a1]\", \"replacement callback\");"},
+            {"file":"js/packages/regexp-complete/src/App.ts","contains":"all.length === 2 && all[0] === \"a\" && all[1] === \"b\","},
+            {"file":"js/packages/regexp-complete/src/App.ts","contains":"if (!condition) {\n    console.log();\n  }"},
+            {"file":"scripts/verify/config.mjs","contains":"expectedStdout: \"\","}
+          ],
+          "outcome": "Exact empty stdout enforces [a1], a[1]b[2] and matchAll letters a,b; callback argument identity/rest arity and numeric matchAll captures are not checked."
+        }
+      ]
+    },
+    {
+      "id": "node/assert-and-util-format",
+      "classification": "unpaired",
+      "contract": "node:assert ok enforces true/arithmetic invariants and node:util format handles populated and empty variadic inputs.",
+      "reason": "No matching C# Pudding node:assert/util executable.",
+      "proofs": [
+        {
+          "project": "node-assertions",
+          "level": "runtime",
+          "sources": ["nodejs/packages/assertions/src/App.ts"],
+          "assertions": [
+            {"file":"nodejs/packages/assertions/src/App.ts","contains":"ok(format(\"%s:%d\", \"count\", 3) === \"count:3\", \"variadic formatting failed\");"},
+            {"file":"nodejs/packages/assertions/src/App.ts","contains":"ok(format(\"%s\") === \"%s\", \"empty variadic formatting failed\");"}
+          ],
+          "outcome": "2+2 is 4; format produces count:3 and unchanged %s with no substitution."
+        }
+      ]
+    },
+    {
+      "id": "node/fs/read-text-async",
+      "classification": "unpaired",
+      "contract": "Await node:fs/promises readFile with UTF-8 encoding and validate the returned file content.",
+      "reason": "C# executes and checks fixture content. The shared operation ID is not a behavioral pair.",
+      "proofs": [
+        {
+          "project": "node-async-fs",
+          "level": "compile-only",
+          "sources": ["nodejs/packages/async-fs/src/App.ts"],
+          "assertions": [
+            {"file":"nodejs/packages/async-fs/src/App.ts","contains":"const contents = await readFile(path, \"utf8\");"}
+          ],
+          "outcome": "readNonEmpty compiles with awaited UTF-8 readFile and a content-length predicate.",
+          "gap": "Uncalled library export; no fixture, main or authored native test invokes the operation or asserts content."
+        }
+      ]
+    },
+    {
+      "id": "node/fs/stat-async-library",
+      "classification": "unpaired",
+      "contract": "Compile awaited node:fs/promises stat with file-kind and positive-size predicates.",
+      "reason": "C# asynchronous file-reader lists and reads, but does not stat.",
+      "proofs": [
+        {
+          "project": "node-async-fs",
+          "level": "compile-only",
+          "sources": ["nodejs/packages/async-fs/src/App.ts"],
+          "assertions": [
+            {"file":"nodejs/packages/async-fs/src/App.ts","contains":"return contents.length > 0 && information.isFile() && information.size > 0;"}
+          ],
+          "outcome": "readNonEmpty includes stat and returns a conjunction of content length, isFile and size.",
+          "gap": "The library function is never invoked; no async stat result is enforced."
+        }
+      ]
+    },
+    {
+      "id": "node/buffer-hash-hmac-base64",
+      "classification": "unpaired",
+      "contract": "Buffer UTF-8/byte access, SHA-256, HMAC and base64 operations satisfy explicit result checks.",
+      "reason": "No matching C# capability proof. Full SHA/HMAC digest identity is not asserted here.",
+      "proofs": [
+        {
+          "project": "node-crypto-buffer",
+          "level": "runtime",
+          "sources": ["nodejs/packages/crypto-buffer/src/App.ts"],
+          "assertions": [
+            {"file":"nodejs/packages/crypto-buffer/src/App.ts","contains":"digest.startsWith(\"ba7816bf\") &&"},
+            {"file":"nodejs/packages/crypto-buffer/src/App.ts","contains":"mac.length === 64 &&"},
+            {"file":"nodejs/packages/crypto-buffer/src/App.ts","contains":"throw new Error(\"crypto or buffer capability failed\");"}
+          ],
+          "outcome": "abc buffer length 3/first byte 97; SHA prefix ba7816bf and length 64; HMAC length 64 only; base64 YWJj roundtrip; utf8 encoding accepted."
+        }
+      ]
+    },
+    {
+      "id": "node/path-decompose-and-join",
+      "classification": "paired",
+      "contract": "For /home/user/documents/file.txt, basename is file.txt, dirname is /home/user/documents, extension is .txt; joining home,user,docs yields home/user/docs.",
+      "proofs": [
+        {
+          "project": "node-env-path",
+          "level": "runtime",
+          "sources": ["nodejs/packages/env-path/src/App.ts"],
+          "assertions": [
+            {"file":"nodejs/packages/env-path/src/App.ts","contains":"if (basename(path) !== \"file.txt\" || dirname(path) !== \"/home/user/documents\") {"},
+            {"file":"nodejs/packages/env-path/src/App.ts","contains":"if (extname(path) !== \".txt\" || !isAbsolute(path) || join(\"home\", \"user\", \"docs\") !== \"home/user/docs\") {"}
+          ],
+          "outcome": "main throws on mismatched path components or join; also checks isAbsolute separately."
+        }
+      ]
+    },
+    {
+      "id": "node/process-context-path-env-and-absolute-path",
+      "classification": "unpaired",
+      "contract": "Node process cwd/platform/arch/PATH are nonempty, PID is positive and the fixture path is absolute.",
+      "reason": "C# pure-native env-info checks exact cwd/platform/arch/version and PID, not PATH or isAbsolute; Rust selects the JS surface.",
+      "proofs": [
+        {
+          "project": "node-env-path",
+          "level": "runtime",
+          "sources": ["nodejs/packages/env-path/src/App.ts"],
+          "assertions": [
+            {"file":"nodejs/packages/env-path/src/App.ts","contains":"const pathVariable = env[\"PATH\"] ?? \"\";"},
+            {"file":"nodejs/packages/env-path/src/App.ts","contains":"if (cwd().length === 0 || platform.length === 0 || arch.length === 0 || pid <= 0 || pathVariable.length === 0) {"}
+          ],
+          "outcome": "main throws on empty process context or PATH, nonpositive PID or nonabsolute /home/user/documents/file.txt."
+        }
+      ]
+    },
+    {
+      "id": "node/fs/read-stat-sync",
+      "classification": "unpaired",
+      "contract": "Synchronous filesystem calls find/read a fixture and assert substring content, file/not-directory kind and positive size.",
+      "reason": "C# asynchronous listing/reading does not exercise sync APIs or file metadata.",
+      "proofs": [
+        {
+          "project": "node-file-system",
+          "level": "runtime",
+          "sources": ["nodejs/packages/file-system/src/App.ts"],
+          "assertions": [
+            {"file":"nodejs/packages/file-system/src/App.ts","contains":"if (!existsSync(\"fixture.txt\")) {"},
+            {"file":"nodejs/packages/file-system/src/App.ts","contains":"if (!contents.includes(\"Rust Pudding\") || !stats.isFile() || stats.isDirectory() || stats.size <= 0) {"}
+          ],
+          "outcome": "existsSync true; contents include Rust Pudding; stat isFile true/isDirectory false/size positive."
+        }
+      ]
+    },
+    {
+      "id": "node/url-query-and-file-roundtrip",
+      "classification": "unpaired",
+      "contract": "URL parsing, query parameter mutation/presence, file URL/path roundtrip and canParse satisfy explicit results.",
+      "reason": "No matching C# Pudding node:url proof.",
+      "proofs": [
+        {
+          "project": "node-url",
+          "level": "runtime",
+          "sources": ["nodejs/packages/url/src/App.ts"],
+          "assertions": [
+            {"file":"nodejs/packages/url/src/App.ts","contains":"url.hostname === \"user.example.com\" &&"},
+            {"file":"nodejs/packages/url/src/App.ts","contains":"roundtrip === \"/tmp/rust-pudding\" &&"},
+            {"file":"nodejs/packages/url/src/App.ts","contains":"throw new Error(\"URL capability failed\");"}
+          ],
+          "outcome": "https:, host user.example.com, port 8443, path /docs/page; query a=9 and b present; /tmp/rust-pudding roundtrips; canParse true. Appended c is not asserted."
+        }
+      ]
+    },
+    {
+      "id": "workspace/scoped-todo-toggle",
+      "classification": "paired",
+      "contract": "Consume TodoItem from @acme/domain/index.js, preserve constructor fields and toggle completed from false to true.",
+      "proofs": [
+        {
+          "project": "workspace-scoped-api",
+          "level": "runtime",
+          "sources": ["workspaces/scoped-multi-project/packages/api/src/App.ts","workspaces/scoped-multi-project/packages/domain/src/index.ts","workspaces/scoped-multi-project/packages/domain/src/todo-item.ts"],
+          "assertions": [
+            {"file":"workspaces/scoped-multi-project/packages/api/src/App.ts","contains":"if (item.id !== 7 || item.title !== \"prove scoped source packages\" || item.isComplete()) {"},
+            {"file":"workspaces/scoped-multi-project/packages/api/src/App.ts","contains":"if (!item.isComplete()) {\n    throw new Error(\"scoped source-package method dispatch failed\");"}
+          ],
+          "outcome": "Numeric ID 7/title survive construction; isComplete starts false and becomes true. C# uses string ID/formatted output.",
+          "requires": ["workspace-scoped-domain"]
+        }
+      ]
+    },
+    {
+      "id": "workspace/unscoped-counter-increments",
+      "classification": "unpaired",
+      "contract": "Consume Counter from acme-domain/index.js, increment 40 to 41 then 42 and retain field value 42.",
+      "reason": "C# unscoped source package is TodoItem toggle/formatting, not a numeric counter.",
+      "proofs": [
+        {
+          "project": "workspace-unscoped-api",
+          "level": "runtime",
+          "sources": ["workspaces/unscoped-multi-project/packages/acme-api/src/App.ts","workspaces/unscoped-multi-project/packages/acme-domain/src/index.ts","workspaces/unscoped-multi-project/packages/acme-domain/src/counter.ts"],
+          "assertions": [
+            {"file":"workspaces/unscoped-multi-project/packages/acme-api/src/App.ts","contains":"if (counter.increment() !== 41 || counter.increment() !== 42 || counter.value !== 42) {"}
+          ],
+          "outcome": "main throws on any wrong increment return or retained value.",
+          "requires": ["workspace-unscoped-domain"]
+        }
+      ]
+    }
+  ]
+}

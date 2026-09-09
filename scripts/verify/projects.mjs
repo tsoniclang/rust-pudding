@@ -75,8 +75,12 @@ export async function executeProject(context, task, project) {
     "--locked",
     "--quiet",
   ], projectDirectory, commonEnvironment));
+  assertExecutionOutput(project, execution.stdout);
+}
+
+export function assertExecutionOutput(project, stdout) {
   if (project.expectedStdout !== undefined) {
-    assert.equal(execution.stdout, project.expectedStdout, `${project.id} emitted unexpected standard output.`);
+    assert.equal(stdout, project.expectedStdout, `${project.id} emitted unexpected standard output.`);
   }
 }
 

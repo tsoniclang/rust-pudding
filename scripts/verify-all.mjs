@@ -14,6 +14,7 @@ import {
   verifySystemdBoundary,
 } from "./verify/preflight.mjs";
 import { executeProject } from "./verify/projects.mjs";
+import { inspectScenarioArguments, inspectScenarios } from "./verify/scenarios.mjs";
 import {
   cleanupUnits,
   createRunContext,
@@ -25,6 +26,8 @@ import {
   writeConsolidatedReport,
 } from "./verify/runner.mjs";
 
+if (await inspectScenarioArguments(process.argv.slice(2), inspectScenarios)) process.exit(0);
+
 const context = await createRunContext(repoRoot, workerLimit, memoryBudgetMiB);
 recoverOrphanedUnits(context);
 const progressTimer = startProgressTimer(context);
@@ -33,6 +36,7 @@ let fatalError;
 try {
   const architecture = await runLoggedTask(context, "architecture-contract", async () => {
     const counts = await verifyArchitecture();
+    context.scenarios = counts.scenarios;
     recordEvidence(context, `ARCHITECTURE files=${counts.files} workspaces=${counts.workspaces} projects=${counts.projects}`);
   });
   assert.equal(architecture.status, "passed");
