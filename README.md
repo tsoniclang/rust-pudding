@@ -2,7 +2,7 @@
 
 Executable integration proofs for the Tsonic Rust target.
 
-The suite records bounded assertions shared with `pudding-csharp`, plus
+The suite records bounded assertions shared with `csharp-pudding`, plus
 Rust-owned and currently unpaired contracts. It exercises ownership and
 borrowing, `Option`/`Result`, traits, Cargo project generation, safe
 typed-location aliasing, transitive Rust generic-contract reconstruction,
@@ -41,7 +41,7 @@ assertions from compile-only checks. Inspect the declared pairs without
 running projects:
 
 ```sh
-node scripts/verify-all.mjs --scenarios --peer ../pudding-csharp
+node scripts/verify-all.mjs --scenarios --peer ../csharp-pudding
 ```
 
 See [proof alignment](https://github.com/tsoniclang/tsonic/blob/main/docs/architecture/target-pack-contract.md#proof-alignment)
