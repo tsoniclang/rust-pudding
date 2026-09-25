@@ -65,6 +65,9 @@ export const projectSpecs = Object.freeze([
     unsafeContract: "lexical-and-declaration",
   }),
   project("native-lifetimes", "native/packages/lifetimes", "native", "rust_proof_native_lifetimes", "bin"),
+  project("native-macros", "native/packages/macros", "native", "rust_proof_native_macros", "bin", {
+    expectedStdout: "native macros: 4 41\n",
+  }),
   project("native-project-polymorphism", "native/packages/project-polymorphism", "native", "rust_proof_native_project_polymorphism", "bin"),
   project("native-typed-locations", "native/packages/typed-locations", "native", "rust_proof_native_typed_locations", "bin", {
     unsafeContract: "lexical",
