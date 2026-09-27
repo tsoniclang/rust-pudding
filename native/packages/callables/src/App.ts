@@ -18,6 +18,13 @@ function counter(seed: int32): () => int32 {
   };
 }
 
+function append(seed: string): (suffix: string) => string {
+  return suffix => {
+    seed = seed + suffix;
+    return seed;
+  };
+}
+
 function optionalArgument(): int32 {
   argumentEvaluations += 1;
   return 4;
@@ -44,6 +51,13 @@ export function main(): void {
   const next = counter(3);
   if (next() !== 4 || next() !== 5) {
     throw new Error("escaping mutable closure capture failed");
+  }
+
+  const first = append("a");
+  const alias = first;
+  const second = append("b");
+  if (first("x") !== "ax" || alias("y") !== "axy" || second("z") !== "bz") {
+    throw new Error("native owned capture identity failed");
   }
 
   if (invokeOptional(null) !== null || currentArgumentEvaluations() !== 0) {

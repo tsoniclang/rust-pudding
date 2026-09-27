@@ -3,6 +3,37 @@
   "suite": "rust",
   "scenarios": [
     {
+      "id": "native/checked-macros-and-result",
+      "classification": "native-only",
+      "contract": "Native vectors, repetition, iterator adapters and Result propagation retain native carriers and print the checked results.",
+      "reason": "Rust expression macros and native Result termination do not have a corresponding C# syntax contract.",
+      "proofs": [{
+        "project": "native-macros",
+        "level": "runtime",
+        "sources": ["native/packages/macros/src/App.ts"],
+        "assertions": [
+          {"file":"native/packages/macros/src/App.ts","contains":"return Result.Err<void, int32>(1);"},
+          {"file":"native/packages/macros/src/App.ts","contains":"println(\"native macros: {} {}\", mapped.len(), answer);"}
+        ],
+        "outcome": "Execution returns success and prints native macros: 4 41; a wrong result returns failure."
+      }]
+    },
+    {
+      "id": "closures/native-owned-capture-aliases",
+      "classification": "unpaired",
+      "contract": "Aliases of one String-capturing callable share updates; independently created callables retain separate storage.",
+      "reason": "The paired closure bank is retained; this adds an exact non-Copy native storage proof.",
+      "proofs": [{
+        "project": "native-callables",
+        "level": "runtime",
+        "sources": ["native/packages/callables/src/App.ts"],
+        "assertions": [
+          {"file":"native/packages/callables/src/App.ts","contains":"if (first(\"x\") !== \"ax\" || alias(\"y\") !== \"axy\" || second(\"z\") !== \"bz\") {"}
+        ],
+        "outcome": "Execution throws if alias identity or independent storage is lost."
+      }]
+    },
+    {
       "id": "arithmetic/add-10-3",
       "classification": "paired",
       "contract": "Adding 10 and 3 returns 13.",
