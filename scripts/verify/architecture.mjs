@@ -63,10 +63,10 @@ export async function verifyArchitecture(root = repoRoot) {
     }
     assert.equal(source.includes("typescriptCompatibility"), false);
     if (project.unsafeContract !== undefined) {
-      assert.match(source, /\bunsafeContext\b/u, `${project.id} declares unsafe output without an explicit source context.`);
+      assert.match(source, /\bunsafecontext\b/u, `${project.id} declares unsafe output without an explicit source context.`);
     }
     if (project.unsafeContract === "lexical-and-declaration") {
-      assert.match(source, /\.requiresUnsafe\(\)/u, `${project.id} does not declare its unsafe callable contract.`);
+      assert.match(source, /\.requiresunsafe\(\)/u, `${project.id} does not declare its unsafe callable contract.`);
     }
     assertSourceImports(project.path, source);
   }

@@ -1,5 +1,5 @@
 import type { int32 } from "@tsonic/core/types.js";
-import { unsafeContext } from "@tsonic/core/lang.js";
+import { unsafecontext } from "@tsonic/core/lang.js";
 import type { constPtr, u8 } from "@tsonic/rust/types.js";
 import { HashMap, HashSet } from "@tsonic/rust/std/collections.js";
 import { Vec } from "@tsonic/rust/std/vec.js";
@@ -28,7 +28,7 @@ function check(condition: boolean): void {
 }
 
 function readByte(pointer: constPtr<u8>): u8 {
-  return unsafeContext(first_byte(pointer));
+  return unsafecontext(first_byte(pointer));
 }
 
 async function completeLater(): Promise<void> {}
@@ -66,7 +66,7 @@ export function main(): void {
   check(featured(1) === 101);
   check(triple(3) === 9);
   check(maybe_positive(6) === 6);
-  check(unsafeContext(dangerous(12)) === 12);
+  check(unsafecontext(dangerous(12)) === 12);
   check(readByte(byte_ptr()) === 23);
 
   const duplicated = duplicate(8);

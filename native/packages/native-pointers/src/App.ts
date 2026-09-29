@@ -1,9 +1,9 @@
 import {
-  loadNativePointer,
-  offsetNativePointer,
+  loadnativeptr,
+  offsetnativeptr,
   safety,
-  storeNativePointer,
-  unsafeContext,
+  storenativeptr,
+  unsafecontext,
 } from "@tsonic/core/lang.js";
 import type {
   NativePointer,
@@ -16,19 +16,19 @@ export function copyAndAdvance(
   destination: NativePointer<int32>,
   elementOffset: nativeInt,
 ): NativePointer<int32> {
-  unsafeContext();
-  storeNativePointer(destination, loadNativePointer(source));
-  return offsetNativePointer(source, elementOffset);
+  unsafecontext();
+  storenativeptr(destination, loadnativeptr(source));
+  return offsetnativeptr(source, elementOffset);
 }
 
-safety(copyAndAdvance).requiresUnsafe();
+safety(copyAndAdvance).requiresunsafe();
 
 export function declaredUnsafe(value: int32): int32 {
   return value;
 }
 
-safety(declaredUnsafe).requiresUnsafe();
+safety(declaredUnsafe).requiresunsafe();
 
 export function invokeDeclaredUnsafe(value: int32): int32 {
-  return unsafeContext(declaredUnsafe(value));
+  return unsafecontext(declaredUnsafe(value));
 }

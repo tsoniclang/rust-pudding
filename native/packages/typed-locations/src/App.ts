@@ -1,8 +1,8 @@
 import {
-  addressOf,
-  equalPointer,
-  loadPointer,
-  storePointer,
+  addressof,
+  equalptr,
+  loadptr,
+  storeptr,
 } from "@tsonic/core/lang.js";
 import type { int32, Pointer } from "@tsonic/core/types.js";
 import { forwardValue } from "./forward.js";
@@ -20,31 +20,31 @@ class Pair {
 }
 
 function increment(pointer: Pointer<int32>): void {
-  storePointer(pointer, loadPointer(pointer) + 1);
+  storeptr(pointer, loadptr(pointer) + 1);
 }
 
 export function main(): void {
   if (!verifyPointerViews()) throw new Error("pointer view contract failed");
   if (!verifyNativeMemory()) throw new Error("native memory contract failed");
   let value: int32 = 1;
-  const alias = addressOf(value);
+  const alias = addressof(value);
   value += 1;
   increment(alias);
-  if (value !== 3 || loadPointer(alias) !== 3) {
+  if (value !== 3 || loadptr(alias) !== 3) {
     throw new Error("local location aliasing failed");
   }
 
   let pair = new Pair(4, 5);
-  const first = addressOf(pair.left);
-  const firstAgain = addressOf(pair.left);
-  storePointer(first, 6);
-  if (pair.left !== 6 || loadPointer(firstAgain) !== 6 || !equalPointer(first, firstAgain)) {
+  const first = addressof(pair.left);
+  const firstAgain = addressof(pair.left);
+  storeptr(first, 6);
+  if (pair.left !== 6 || loadptr(firstAgain) !== 6 || !equalptr(first, firstAgain)) {
     throw new Error("projected location aliasing failed");
   }
 
   const allocated = forwardValue<int32>(40);
   increment(allocated);
-  if (loadPointer(allocated) !== 41) {
+  if (loadptr(allocated) !== 41) {
     throw new Error("transitive location contract failed");
   }
 }
