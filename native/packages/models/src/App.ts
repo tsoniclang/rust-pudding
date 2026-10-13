@@ -47,3 +47,5 @@ export function main(): void {
     throw new Error("generic or option proof failed");
   }
 }
+
+main();

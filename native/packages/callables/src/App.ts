@@ -74,3 +74,5 @@ export function main(): void {
     throw new Error("recursive or rest callable contract failed");
   }
 }
+
+main();

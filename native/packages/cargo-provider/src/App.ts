@@ -75,3 +75,5 @@ export function main(): void {
   check(duplicated.is_empty());
   check(!singleton_map(10).is_empty());
 }
+
+main();

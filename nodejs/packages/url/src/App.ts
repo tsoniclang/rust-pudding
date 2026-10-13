@@ -24,3 +24,5 @@ export function main(): void {
     throw new Error("URL capability failed");
   }
 }
+
+main();

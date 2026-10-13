@@ -10,3 +10,5 @@ export function main(): void {
     throw new Error("file-system capability failed");
   }
 }
+
+main();

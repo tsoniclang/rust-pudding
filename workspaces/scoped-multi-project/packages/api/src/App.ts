@@ -10,3 +10,5 @@ export function main(): void {
     throw new Error("scoped source-package method dispatch failed");
   }
 }
+
+main();

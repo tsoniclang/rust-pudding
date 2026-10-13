@@ -135,3 +135,5 @@ export async function main(): Promise<void> {
     throw new Error("asynchronous disposal failed");
   }
 }
+
+await main();

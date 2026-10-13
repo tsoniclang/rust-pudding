@@ -80,3 +80,5 @@ export function main(): void {
   requireValue(searchExpression.lastIndex === 2, "search state restoration");
   requireValue(new RegExp(RegExp.escape("a-b")).test("a-b"), "RegExp.escape");
 }
+
+main();

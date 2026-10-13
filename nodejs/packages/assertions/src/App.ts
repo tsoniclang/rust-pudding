@@ -11,3 +11,5 @@ export function main(): void {
   ok(format("%s:%d", "count", 3) === "count:3", "variadic formatting failed");
   ok(format("%s") === "%s", "empty variadic formatting failed");
 }
+
+main();

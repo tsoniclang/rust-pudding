@@ -104,3 +104,5 @@ export async function main(): Promise<void> {
     throw new Error("async lifetime retention failed");
   }
 }
+
+await main();

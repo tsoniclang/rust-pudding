@@ -14,3 +14,5 @@ export function main(): void {
     throw new Error("process capability failed");
   }
 }
+
+main();

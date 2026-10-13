@@ -48,3 +48,5 @@ export function main(): void {
     throw new Error("transitive location contract failed");
   }
 }
+
+main();

@@ -10,3 +10,5 @@ export function main(): void {
   const answer: int32 = 40 + 2;
   requireExact(answer, 42);
 }
+
+main();

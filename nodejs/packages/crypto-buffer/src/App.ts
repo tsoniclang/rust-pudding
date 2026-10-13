@@ -28,3 +28,5 @@ export function main(): void {
     throw new Error("crypto or buffer capability failed");
   }
 }
+
+main();

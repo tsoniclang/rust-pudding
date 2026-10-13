@@ -13,3 +13,5 @@ export function main(): void {
     throw new Error("JSON, RegExp, or Date proof failed");
   }
 }
+
+main();

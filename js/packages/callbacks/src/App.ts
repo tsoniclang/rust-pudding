@@ -11,3 +11,5 @@ export function main(): void {
     throw new Error("callback proof failed");
   }
 }
+
+main();

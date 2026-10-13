@@ -6,3 +6,5 @@ export function main(): void {
   }
   console.info();
 }
+
+main();

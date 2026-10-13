@@ -110,3 +110,5 @@ export function main(): void {
     throw new Error("generated project names collided with authored declarations");
   }
 }
+
+main();

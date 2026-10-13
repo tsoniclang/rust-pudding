@@ -6,3 +6,5 @@ export function main(): void {
     throw new Error("unscoped source-package state failed");
   }
 }
+
+main();

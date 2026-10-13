@@ -28,3 +28,5 @@ export function main(): void {
     throw new Error("division by zero was accepted");
   }
 }
+
+main();

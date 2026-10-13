@@ -32,3 +32,5 @@ export function main(): void {
     throw new Error("set proof failed");
   }
 }
+
+main();

@@ -17,3 +17,5 @@ export function main(): void {
     throw new Error("JavaScript callback Fibonacci proof failed");
   }
 }
+
+main();

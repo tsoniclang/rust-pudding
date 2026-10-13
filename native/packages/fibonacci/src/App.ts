@@ -20,3 +20,5 @@ export function main(): void {
     throw new Error("fibonacci result mismatch");
   }
 }
+
+main();

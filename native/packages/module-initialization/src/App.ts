@@ -15,3 +15,5 @@ export function main(): void {
     throw new Error("module binding location identity failed");
   }
 }
+
+main();

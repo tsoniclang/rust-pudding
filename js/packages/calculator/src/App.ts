@@ -9,3 +9,5 @@ export function main(): void {
     throw new Error("JavaScript Number predicate mismatch");
   }
 }
+
+main();

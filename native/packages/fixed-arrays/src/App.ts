@@ -12,3 +12,5 @@ export function main(): void {
     throw new Error("slice or fixed-array proof failed");
   }
 }
+
+main();
